@@ -10,7 +10,8 @@
 # Pages read these artifacts only; they never refit anything.
 # =============================================================================
 
-set.seed(34)
+source("R/params.R")
+set.seed(par_get("seed"))
 
 panel <- read.csv("data/vendor_panel.csv", stringsAsFactors = FALSE)
 
@@ -27,11 +28,14 @@ make_x <- function(d) {
 
 train <- panel[panel$split == "train", ]
 fit_vs <- xgboost::xgb.train(
-  params = list(objective = "binary:logistic", eta = 0.05, max_depth = 3,
-                min_child_weight = 5, subsample = 0.8, colsample_bytree = 0.8,
+  params = list(objective = "binary:logistic", eta = par_get("vendorscore", "xgb_eta"),
+                max_depth = par_get("vendorscore", "xgb_max_depth"),
+                min_child_weight = par_get("vendorscore", "xgb_min_child_weight"),
+                subsample = par_get("vendorscore", "xgb_subsample"),
+                colsample_bytree = par_get("vendorscore", "xgb_colsample"),
                 nthread = 1),
   data = xgboost::xgb.DMatrix(make_x(train), label = train$incident),
-  nrounds = 150, verbose = 0
+  nrounds = par_get("vendorscore", "xgb_nrounds"), verbose = 0
 )
 p_raw <- as.numeric(predict(fit_vs, xgboost::xgb.DMatrix(make_x(panel))))
 p_raw <- pmin(pmax(p_raw, 1e-6), 1 - 1e-6)
@@ -42,7 +46,7 @@ p_raw <- pmin(pmax(p_raw, 1e-6), 1 - 1e-6)
 # rate drags every score toward zero (underprediction everywhere, no S-shape).
 # We pivot on the training base rate instead. The direction is measured, not
 # assumed, in tests/test_fit_models.R and on page 2.
-SHARPEN <- 1.5
+SHARPEN <- par_get("vendorscore", "sharpen")
 pivot <- qlogis(mean(train$incident))
 score_adj <- plogis(pivot + SHARPEN * (qlogis(p_raw) - pivot))
 
@@ -55,17 +59,11 @@ if (requireNamespace("arrow", quietly = TRUE)) {
 }
 
 # ---- 4.2 The bank's own incident-association model --------------------------
-# Deliberately omits vendor_size (the planted confounder).
-bank <- panel
-bank$no_soc2 <- 1L - bank$soc2_current
-bank$log_patch <- log(bank$patch_latency)
-bank$prior_c <- bank$prior_incidents_12m - mean(bank$prior_incidents_12m)
-bank$tier <- factor(bank$tier)
-bank$data_access <- factor(bank$data_access,
-                           levels = c("none", "internal", "client_pii"))
-
-bank_glm <- glm(incident ~ no_soc2 + tier + data_access + log_patch + prior_c +
-                  fin_health, family = binomial, data = bank)
+# Deliberately omits vendor_size (the planted confounder). Uses the canonical
+# baseline in R/baseline.R, identical to the validated check in simulate.R.
+source("R/baseline.R")
+bank <- prep_bank(panel)
+bank_glm <- glm(bank_formula, family = binomial, data = bank)
 
 tidy_coefs <- function(fit, vc, label) {
   est <- coef(fit); se <- sqrt(diag(vc))
@@ -77,17 +75,16 @@ tidy_coefs <- function(fit, vc, label) {
 }
 coef_tables <- rbind(
   tidy_coefs(bank_glm, vcov(bank_glm), "model-based"),
-  tidy_coefs(bank_glm, sandwich::vcovCL(bank_glm, cluster = bank$vendor_id),
+  tidy_coefs(bank_glm, sandwich::vcovCL(bank_glm, cluster = bank$vendor_id,
+                                        type = "HC1", cadjust = TRUE),
              "vendor-clustered")
 )
 
 # ---- 4.3 Naive benchmark: causal 12-month rolling average of incident counts
 actual <- tapply(panel$incident, panel$month, sum)
 vs_fc <- tapply(score_adj, panel$month, sum)
-naive_fc <- vapply(seq_along(actual), function(t) {
-  if (t == 1) return(NA_real_)
-  mean(actual[max(1, t - 12):(t - 1)])
-}, numeric(1))
+source("R/windows.R")
+naive_fc <- rolling_benchmark(as.numeric(actual))
 forecast_df <- data.frame(month = as.integer(names(actual)),
                           actual = as.numeric(actual),
                           vendorscore = as.numeric(vs_fc),

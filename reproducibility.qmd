@@ -1,0 +1,66 @@
+---
+title: "Reproducibility and Limits"
+---
+
+```{r}
+#| include: false
+source("R/common.R")
+source("R/params.R")
+tr <- read.csv("data/test_results.csv")
+ck <- read.csv("data/checksums.csv")
+lock <- jsonlite::fromJSON("renv.lock")
+ver <- function(p) lock$Packages[[p]]$Version
+md5s <- function(f) substr(ck$md5[ck$file == f], 1, 8)
+pp <- function(...) par_get(...)
+```
+
+## Run it
+
+One command rebuilds everything from seed `r pp("seed")`: the simulation, models, analyses, tests and this site.
+
+```sh
+Rscript run_all.R
+```
+
+The last run passed `r sum(tr$checks_passed)` checks (`r tr$checks_passed[tr$suite == "simulation"]` simulation, `r tr$checks_passed[tr$suite == "artifacts"]` artifact). Packages
+are locked in `renv.lock` (R `r lock$R$Version`; `probcal` `r ver("probcal")`, `forecastdom` `r ver("forecastdom")`, `falsifyr` `r ver("falsifyr")`).
+The generator file's checksum is `r md5s("R/simulate.R")`; any edit changes it. Result checksums and the full
+session record are in the [source repository](https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/tree/main/data).
+
+## What is fixed
+
+Every analysis choice lives in `params.yaml`, which the scripts read. The table shows the main ones.
+
+```{r}
+#| label: tbl-params
+#| tbl-cap: "Main analysis settings and their basis. The full register, with sensitivity ranges, is in params.yaml."
+w <- function(n) paste(range(pp("windows", n)), collapse = "–")
+tab <- data.frame(
+  Setting = c("Random seed", "Windows: classifier / overlay fit / overlay test",
+              "Score sharpening", "Risk-band boundaries", "Resampling draws",
+              "Trimming rule", "Deletion budget", "Significance level"),
+  Value = c(pp("seed"), sprintf("%s / %s / %s", w("classifier_train"), w("calibration_fit"), w("overlay_eval")),
+            pp("vendorscore", "sharpen"), sprintf("%s, %s", pct(pp("calibration", "band_low_upper"), 0), pct(pp("calibration", "band_medium_upper"), 0)),
+            format(pp("calibration", "bootstrap_draws"), big.mark = ","), sprintf("top %s of patch latency", pct(1 - pp("fragility", "trim_percentile"), 0)),
+            pp("fragility", "deletion_budget"), pct(pp("fragility", "alpha"), 0)),
+  Basis = c("assumption", "assumption", "planted", "assumption", "convention", "assumption", "assumption", "convention"))
+knitr::kable(tab)
+```
+
+::: {.reader-note}
+**How to read the table.** Each row is a setting that shapes the results. The last column
+says whether it is an analyst's assumption, a standard convention, or a feature planted in
+the synthetic data.
+
+**What the table tells you.** Most settings are assumptions. Changing the windows, risk
+bands or deletion budget would change the reported numbers, so each is recorded in one place.
+:::
+
+## Limitations
+
+- **Synthetic data.** Confounding, regime shift and overconfidence are planted. Real use needs NorthPoint's vendor-month panel, incident definition and dated SOC 2 reports.
+- **Few events.** `r readRDS("data/calibration.rds")$n_eval_incidents` evaluation incidents and 18 forecast months limit power; more history could change pages 2 and 3.
+- **Thin overlay window.** Six months and `r readRDS("data/calibration.rds")$n_fit_incidents` incidents is little. A real overlay needs a refit schedule and tolerances set in advance.
+- **Information timing.** Start-of-month availability of patch latency and financial health is assumed; real feeds need timestamps.
+- **One dataset.** Seed 34 was chosen in development; the seed sweep on page 4 checks repeatability only.
+- **Partial validation.** Scores and outcomes only; the vendor's internals stay unseen.

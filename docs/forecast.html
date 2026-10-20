@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Patrick Lefler">
+<meta name="dcterms.date" content="2026-10-20">
 
-<title>Question 2: Does It Beat a Simple Model? – Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside</title>
+<title>Question 2: Does It Beat a Simple Model? – Three Questions for Any Risk Model</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,6 +67,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./fragility.html" rel="next">
+<link href="./calibration.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -75,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-bfff32527affdc50e3fbb4fc133dc921.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-2ca19d6521e1ca6457e32fd772feae37.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -131,7 +135,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside</a> 
+      <a href="./">Three Questions for Any Risk Model</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" title="Source code" class="quarto-navigation-tool px-1" aria-label="Source code"><i class="bi bi-github"></i></a>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -165,6 +172,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Fragility</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reproducibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reproducibility</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -181,7 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So what</a></li>
   <li><a href="#committee-action" id="toc-committee-action" class="nav-link" data-scroll-target="#committee-action">Committee action</a></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/forecast.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -195,7 +208,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Patrick Lefler </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 20, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -207,12 +232,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="the-question" class="level2">
 <h2 class="anchored" data-anchor-id="the-question">The question</h2>
-<p>A sophisticated model earns its fee only if it beats a plain alternative. NorthPoint’s plain alternative is a 12-month rolling average of past incident counts. The question: does VendorScore forecast the bank’s monthly incident total better than that average, and does any advantage survive the deterioration in vendor patching after month 36?</p>
+<p>Does VendorScore forecast NorthPoint’s monthly incident total better than a plain 12-month rolling average of past counts, and does any advantage survive the deterioration in vendor patching after month 36? This tests one use of the model, aggregate monthly count forecasting. VendorScore may have other value, such as ranking vendors for attention, which this comparison does not price.</p>
 </section>
 <section id="method-in-brief" class="level2">
 <h2 class="anchored" data-anchor-id="method-in-brief">Method in brief</h2>
-<p>Each month, VendorScore’s portfolio forecast is the sum of its 300 vendor scores. The benchmark is the average of the previous 12 months’ actual incident counts, computed so that month <em>t</em> uses only months before <em>t</em>. We compare both with actual incident totals over months 31 to 48, an out-of-sample, out-of-time window.</p>
-<p>We summarise accuracy with mean squared error (MSE) and mean absolute error (MAE), and test equal accuracy with a Diebold–Mariano test using the Harvey–Leybourne–Newbold small-sample correction, from the <code>forecastdom</code> package. We run it twice: over months 31 to 48, and over months 37 to 48 only, after the shift. Rival approaches, such as encompassing tests or superior-predictive-ability tests, ask related questions but need longer series.</p>
+<p>Each forecast is made at the start of month <em>t</em> for the incidents that will occur during that month. VendorScore’s forecast is the sum of its 300 vendor scores. The benchmark is the mean of actual counts in months <em>t</em> − 12 to <em>t</em> − 1. We assume each month’s patch latency and financial health are observed at the start of that month; if they were end-of-month measures, this would be a contemporaneous assessment, not a one-step-ahead forecast. We use raw scores over months 31 to 48, so no fitting touches the target months.</p>
+<p>We summarise accuracy with mean squared error (MSE, in squared incidents) and mean absolute error (MAE, in incidents). We test equal accuracy with the Diebold–Mariano test from <code>forecastdom</code>:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> a positive statistic means lower squared loss for VendorScore. We run it over months 31 to 48 and over months 37 to 48. With 18 and 12 observations the test has low power, and a small-sample correction does not cure a deliberately shifting environment, where loss patterns may not be stable.</p>
 </section>
 <section id="findings" class="level2">
 <h2 class="anchored" data-anchor-id="findings">Findings</h2>
@@ -245,10 +270,9 @@ Figure&nbsp;1: Monthly incident totals versus both forecasts, months 31–48. Th
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the plot.</strong> Blue dots joined by a line are the actual number of incidents across all 300 vendors each month. The orange line is what VendorScore forecast. The grey dashed line is the simple 12-month average. The dotted vertical line marks when vendor patching began to slow.</p>
-<p><strong>What the plot tells you.</strong> Actual incidents trend upward and swing widely from month to month. The 12-month average trails the trend, forecasting too low for most of the window. VendorScore sits closer to the level of incidents but is far smoother than the actual series, so it misses most month-to-month swings. Neither forecast predicts individual spikes.</p>
+<p><strong>How to read the plot.</strong> Blue dots joined by a line are the actual incident counts across all 300 vendors. The orange line is VendorScore’s forecast and the grey dashed line is the 12-month average. The dotted line marks when patching began to slow.</p>
+<p><strong>What the plot tells you.</strong> Actual counts trend upward and swing widely. The 12-month average trails the trend and forecasts too low for most of the window, by 1.2 incidents a month on average. VendorScore’s average miss is 0.2. Both are conditional expected counts, not predictions of every fluctuation.</p>
 </div>
-<p>Both forecasts are too smooth to follow individual months, but they differ in level. The 12-month average under-forecast by 1.2 incidents a month on average, because it looks backwards while incidents rise. VendorScore’s average miss was 0.2.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -257,7 +281,7 @@ Figure&nbsp;1: Monthly incident totals versus both forecasts, months 31–48. Th
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> fc<span class="sc">$</span>shift_month, <span class="at">colour =</span> <span class="st">"grey50"</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>) <span class="sc">+</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> okabe_ito[[<span class="st">"blue"</span>]], <span class="at">alpha =</span> <span class="fl">0.18</span>) <span class="sc">+</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> okabe_ito[[<span class="st">"blue"</span>]], <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Month"</span>, <span class="at">y =</span> <span class="st">"Cumulative squared-error advantage"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Month"</span>, <span class="at">y =</span> <span class="st">"Cumulative advantage (squared incidents)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-cumulative" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Line chart of the running total of squared-error differences, ending positive, with a vertical line at month 36.">
@@ -266,50 +290,50 @@ Figure&nbsp;1: Monthly incident totals versus both forecasts, months 31–48. Th
 <img src="forecast_files/figure-html/fig-cumulative-1.png" class="img-fluid figure-img" alt="Line chart of the running total of squared-error differences, ending positive, with a vertical line at month 36." width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cumulative-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Cumulative loss differential, months 31–48. Above zero, VendorScore has accumulated lower squared error than the 12-month average.
+Figure&nbsp;2: Cumulative loss differential, months 31–48: running sum of benchmark minus VendorScore squared error (squared incidents). Above zero favours VendorScore.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the plot.</strong> Each month we ask which forecast was closer to the truth and by how much. The line keeps a running total: it rises when VendorScore wins a month, falls when the 12-month average wins, and the height is the net advantage so far.</p>
-<p><strong>What the plot tells you.</strong> The line ends at 22.3 above zero, so VendorScore has a net advantage. It rises only 4.1 by month 36 and 18.2 more afterwards, and it climbs unevenly, with several losing months. A tidy upward line would be stronger evidence; this one is a mixed record with a favourable tilt.</p>
+<p><strong>How to read the plot.</strong> Each month we ask which forecast was closer. The line is the running total, rising when VendorScore wins and falling when the 12-month average wins.</p>
+<p><strong>What the plot tells you.</strong> The line ends 22.3 above zero, with 4.1 accumulated by month 36 and 18.2 after it. It climbs unevenly, with several losing months, so this is a mixed record with a favourable tilt, not a steady edge.</p>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Window =</span> <span class="fu">c</span>(<span class="st">"Months 31–48 (n = 18)"</span>, <span class="st">"Months 37–48 (n = 12)"</span>),</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">MSE 12-month</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>mse_naive, <span class="st">`</span><span class="at">MSE VendorScore</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>mse_vs,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">MAE 12-month</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>mae_naive, <span class="st">`</span><span class="at">MAE VendorScore</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>mae_vs,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">MSE, 12-month (incidents²)</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>mse_naive, <span class="st">`</span><span class="at">MSE, VendorScore (incidents²)</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>mse_vs,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">MAE, 12-month (incidents)</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>mae_naive, <span class="st">`</span><span class="at">MAE, VendorScore (incidents)</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>mae_vs,</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">DM statistic</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>dm_stat, <span class="st">`</span><span class="at">p-value</span><span class="st">`</span> <span class="ot">=</span> res<span class="sc">$</span>dm_p, <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tab, <span class="at">digits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="tbl-accuracy" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-accuracy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Forecast accuracy and Diebold–Mariano tests (benchmark versus VendorScore). A positive statistic favours VendorScore.
+Table&nbsp;1: Forecast accuracy and Diebold–Mariano tests. Positive statistic: lower squared loss for VendorScore.
 </figcaption>
 <div aria-describedby="tbl-accuracy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 21%">
-<col style="width: 12%">
-<col style="width: 15%">
-<col style="width: 12%">
-<col style="width: 15%">
-<col style="width: 12%">
-<col style="width: 7%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 19%">
+<col style="width: 16%">
+<col style="width: 18%">
+<col style="width: 8%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Window</th>
-<th style="text-align: right;">MSE 12-month</th>
-<th style="text-align: right;">MSE VendorScore</th>
-<th style="text-align: right;">MAE 12-month</th>
-<th style="text-align: right;">MAE VendorScore</th>
+<th style="text-align: right;">MSE, 12-month (incidents²)</th>
+<th style="text-align: right;">MSE, VendorScore (incidents²)</th>
+<th style="text-align: right;">MAE, 12-month (incidents)</th>
+<th style="text-align: right;">MAE, VendorScore (incidents)</th>
 <th style="text-align: right;">DM statistic</th>
 <th style="text-align: right;">p-value</th>
 </tr>
@@ -341,16 +365,15 @@ Table&nbsp;1: Forecast accuracy and Diebold–Mariano tests (benchmark versus Ve
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the table.</strong> Each row is a stretch of months. Error columns show the typical miss in incidents per month for each forecast, so smaller is better. MSE punishes large misses more heavily than MAE does. The last two columns test whether the gap is real or could be luck: a small p-value (below 0.05) means luck is an unlikely explanation.</p>
-<p><strong>What the table tells you.</strong> VendorScore has lower errors in both windows, but p-values of 0.235 and 0.309 are well above 0.05. Eighteen months, and twelve after the shift, are too few to separate a modest edge from chance. The result is “no detectable advantage,” not proof that the two are equal.</p>
+<p><strong>How to read the table.</strong> Each row is a stretch of months. The MAE columns show the average miss in incidents per month; the MSE columns square each miss, so large misses count more. The last two columns test whether the accuracy gap is bigger than expected if both forecasts were equally good.</p>
+<p><strong>What the table tells you.</strong> VendorScore has lower errors in both windows. The p-value is the chance of a loss difference at least this extreme if expected accuracy were equal and the test’s assumptions held; 0.235 and 0.309 are not small. That means no detectable advantage here, not proof of equality.</p>
 </div>
-<p>VendorScore’s MSE is 22% lower over the full window and 20% lower after the shift. The MAE advantage is smaller, and after the shift almost vanishes (2.03 versus 2.08). A non-significant test with n = 18 has low power, so it means no detectable advantage, not equality. The pre-shift record is also thin: months 31 to 36 contribute only six observations.</p>
-<p>The vendor’s AUC of 0.81 is measured on its own development data. It cannot show that VendorScore stays reliable at <em>this</em> bank after conditions change. As a rough check, NorthPoint’s own outcomes give an AUC of 0.72 over months 31 to 48: 0.77 for months 31 to 36 and 0.70 afterwards. These come with no interval and few incidents, so a drop of a few points could be noise. Only ongoing monitoring at the bank can answer the question (§VII).</p>
+<p>VendorScore’s MSE is 22% lower over the full window and 20% lower after the shift, while its MAE advantage nearly vanishes after the shift (2.03 versus 2.08). The vendor’s claimed AUC of 0.81 comes from its own development data. It cannot show whether VendorScore stays reliable at <em>this</em> bank once conditions change. Only the bank’s own ongoing monitoring can (§VII).</p>
 </section>
 <section id="so-what" class="level2">
 <h2 class="anchored" data-anchor-id="so-what">So what</h2>
-<p>On this evidence, VendorScore gets the level of incidents roughly right and the simple benchmark does not, but the advantage is statistically unproven and concentrated in a period when the benchmark lagged a rising trend. The comparison is about aggregate counts, not about whether individual vendors are ranked correctly.</p>
-<p>The April 2026 interagency <em>Supervisory Guidance on Model Risk Management</em> treats out-of-sample and out-of-time testing and benchmarking as part of model testing (§IV) and ongoing monitoring (§V). The cumulative-differential chart is the kind of metric that fits there: it turns “is the model still earning its place?” into a line a committee can watch. This is partial validation: it tests outputs, not the proprietary method.</p>
+<p>On this evidence VendorScore gets the level of incidents closer than the simple benchmark does, but the advantage is statistically unproven and concentrated in a period when the benchmark lagged a rising trend. The comparison covers aggregate counts, not vendor rankings.</p>
+<p>The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) lists out-of-sample and out-of-time testing under model testing (§IV), and benchmarking and ongoing monitoring under validation (§V). The cumulative-differential chart fits there: a line a committee can watch. This is partial validation: it tests outputs, not the method.</p>
 </section>
 <section id="committee-action" class="level2">
 <h2 class="anchored" data-anchor-id="committee-action">Committee action</h2>
@@ -359,7 +382,13 @@ Table&nbsp;1: Forecast accuracy and Diebold–Mariano tests (benchmark versus Ve
 
 </section>
 
-</main> <!-- /main -->
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p><a href="https://cran.r-project.org/package=forecastdom"><code>forecastdom</code></a> 0.1.0, <code>dm_test()</code> with <code>h = 1</code>, squared-error loss, two-sided alternative, Harvey–Leybourne–Newbold correction (reference distribution t with n − 1 degrees of freedom), benchmark errors first. At <code>h = 1</code> the package’s variance is the sample variance of the loss differences divided by n, with no autocorrelation adjustment.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -760,7 +789,43 @@ Table&nbsp;1: Forecast accuracy and Diebold–Mariano tests (benchmark versus Ve
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./calibration.html" class="pagination-link" aria-label="Calibration">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Calibration</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./fragility.html" class="pagination-link" aria-label="Fragility">
+        <span class="nav-page-text">Fragility</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Synthetic case study: all data are simulated.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/forecast.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://seeking-eureka.com/projects.html">
+<p>Seeking Eureka projects</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link active" href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" aria-current="page">
+<p>Source code</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
 
 
 

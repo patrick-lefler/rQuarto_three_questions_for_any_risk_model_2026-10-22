@@ -1,81 +1,136 @@
-# Page 2 computations: are VendorScore's probabilities honest?
-# Calibrators are fit on months 1-30; every reported metric is from 31-48.
+# Page 2 computations: are VendorScore's probabilities honest, and does a
+# recalibration overlay help? Windows (R/windows.R):
+#   classifier trained on months 1-30 (the vendor's rows);
+#   overlay fitted on months 31-36 (scores out of sample for the classifier);
+#   overlay assessed on months 37-48 only.
+# Method choices are fixed BEFORE looking at the evaluation window: isotonic
+# (primary) and Platt on the logit scale (secondary); equal-frequency ECE with
+# 10 bins (primary), equal-width ECE (sensitivity). No selection on 37-48.
 # Run from the project root after fit_models.R. Writes data/calibration.rds.
 
 library(probcal)
-set.seed(34)
+source("R/windows.R")
+set.seed(par_get("seed"))
+B <- par_get("calibration", "bootstrap_draws")
+BINS <- par_get("calibration", "ece_bins")
 
 panel  <- read.csv("data/vendor_panel.csv", stringsAsFactors = FALSE)
 scores <- read.csv("data/vendorscore.csv")
 d      <- merge(panel[, c("vendor_id", "month", "incident", "p_true")], scores,
                 by = c("vendor_id", "month"))
-fitw   <- d[d$month <= 30, ]
-evalw  <- d[d$month > 30, ]
+d      <- d[order(d$vendor_id, d$month), ]
+fitw   <- d[d$month %in% WINDOWS$calibration_fit, ]
+evalw  <- d[d$month %in% WINDOWS$overlay_eval, ]
+n_months_eval <- length(WINDOWS$overlay_eval)
+
+stopifnot(length(intersect(WINDOWS$classifier_train, WINDOWS$calibration_fit)) == 0,
+          length(intersect(WINDOWS$calibration_fit, WINDOWS$overlay_eval)) == 0)
 
 iso <- cal_isotonic(fitw$score_adj, fitw$incident)
-pla <- cal_platt(fitw$score_adj, fitw$incident)
+pla <- cal_platt(qlogis(fitw$score_adj), fitw$incident)   # logit-scale input
 evalw$isotonic <- predict(iso, evalw$score_adj)
-evalw$platt    <- predict(pla, evalw$score_adj)
+evalw$platt    <- predict(pla, qlogis(evalw$score_adj))
 
-# Reliability data: equal-mass bins on each score's own distribution
-reliability <- function(p, y, label, bins = 10) {
-  br <- unique(quantile(p, seq(0, 1, length.out = bins + 1)))
-  bin <- cut(p, br, include.lowest = TRUE, labels = FALSE)
-  do.call(rbind, lapply(sort(unique(bin)), function(b) {
-    i <- bin == b; n <- sum(i); k <- sum(y[i])
-    ci <- binom.test(k, n)$conf.int
-    data.frame(score = label, bin = b, n = n, predicted = mean(p[i]),
-               observed = k / n, low = ci[1], high = ci[2])
-  }))
+variants <- c(`Raw VendorScore` = "score_adj", `Isotonic overlay` = "isotonic",
+              `Platt overlay (logit scale)` = "platt")
+
+# ---- Point estimates ------------------------------------------------------------
+metric_row <- function(p, y, n_months) {
+  c(brier = mean((p - y)^2),
+    ece_mass  = ece(p, y, bins = BINS, strategy = "mass"),
+    ece_width = ece(p, y, bins = BINS, strategy = "width"),
+    expected_per_month = sum(p) / n_months)
 }
-rel <- rbind(reliability(evalw$score_adj, evalw$incident, "Raw VendorScore"),
-             reliability(evalw$isotonic, evalw$incident, "Isotonic-calibrated"))
+point <- t(vapply(variants, function(v) metric_row(evalw[[v]], evalw$incident, n_months_eval),
+                  numeric(4)))
+observed_per_month <- sum(evalw$incident) / n_months_eval
 
-brier <- function(p) mean((p - evalw$incident)^2)
-metrics <- do.call(rbind, lapply(
-  list(`Raw VendorScore` = evalw$score_adj, `Isotonic-calibrated` = evalw$isotonic,
-       `Platt-calibrated` = evalw$platt),
-  function(p) data.frame(
-    brier = brier(p),
-    ece_mass = ece(p, evalw$incident, bins = 10, strategy = "mass"),
-    ece_width = ece(p, evalw$incident, bins = 10, strategy = "width"),
-    expected_per_month = sum(p) / 18)))
-metrics$method <- rownames(metrics); rownames(metrics) <- NULL
-observed_per_month <- sum(evalw$incident) / 18
-p_true_per_month   <- sum(evalw$p_true) / 18
+# ---- Vendor-cluster bootstrap ---------------------------------------------------
+# Each draw resamples whole vendor histories (all 12 evaluation months of a
+# vendor stay together; raw and overlay predictions stay paired). A vendor drawn
+# twice enters twice as a separate copy. Conditional on the fitted overlay:
+# calibrator-fitting uncertainty is NOT included. Reliability bins are fixed
+# from the point sample; only membership counts are resampled.
+vids <- unique(evalw$vendor_id)
+rows_by_vendor <- split(seq_len(nrow(evalw)), evalw$vendor_id)
 
-# Kernel calibration test of the vendor's "well-calibrated" claim (raw scores)
+bin_breaks <- function(p, bins = BINS) {
+  br <- unique(quantile(p, seq(0, 1, length.out = bins + 1), names = FALSE))
+  br[1] <- -Inf; br[length(br)] <- Inf
+  br
+}
+breaks <- lapply(variants, function(v) bin_breaks(evalw[[v]]))
+bin_id <- Map(function(v, br) cut(evalw[[v]], br, labels = FALSE, right = TRUE),
+              variants, breaks)
+
+boot_one <- function() {
+  idx <- cluster_resample_idx(rows_by_vendor, vids)$idx
+  e <- evalw[idx, ]
+  out <- list()
+  for (nm in names(variants)) {
+    v <- variants[[nm]]
+    m <- metric_row(e[[v]], e$incident, n_months_eval)
+    bi <- bin_id[[nm]][idx]
+    nb <- max(bin_id[[nm]])
+    obs <- vapply(seq_len(nb), function(b) mean(e$incident[bi == b]), numeric(1))
+    out[[nm]] <- list(metrics = m, obs = obs)
+  }
+  out
+}
+boot <- replicate(B, boot_one(), simplify = FALSE)
+
+q <- function(x) quantile(x, c(0.025, 0.5, 0.975), names = FALSE, na.rm = TRUE)
+diff_ci <- function(nm, metric) q(vapply(boot, function(b)
+  b[[nm]]$metrics[[metric]] - b[["Raw VendorScore"]]$metrics[[metric]], numeric(1)))
+metric_ci <- function(nm, metric) q(vapply(boot, function(b) b[[nm]]$metrics[[metric]], numeric(1)))
+metric_names <- c("brier", "ece_mass", "ece_width", "expected_per_month")
+
+ci_tab <- do.call(rbind, lapply(names(variants), function(nm) {
+  do.call(rbind, lapply(metric_names, function(m) {
+    r <- metric_ci(nm, m)
+    dd <- if (nm == "Raw VendorScore") c(NA, NA, NA) else diff_ci(nm, m)
+    data.frame(variant = nm, metric = m, estimate = point[nm, m],
+               low = r[1], high = r[3], diff_low = dd[1], diff_med = dd[2], diff_high = dd[3])
+  }))
+}))
+rownames(ci_tab) <- NULL
+
+# ---- Reliability data (fixed bins; clustered intervals; ties are not split) -----
+rel <- do.call(rbind, lapply(names(variants), function(nm) {
+  v <- variants[[nm]]; bi <- bin_id[[nm]]
+  do.call(rbind, lapply(seq_len(max(bi)), function(b) {
+    i <- bi == b; r <- q(vapply(boot, function(x) x[[nm]]$obs[b], numeric(1)))
+    data.frame(score = nm, bin = b, n = sum(i), incidents = sum(evalw$incident[i]),
+               predicted = mean(evalw[[v]][i]), observed = mean(evalw$incident[i]),
+               true_mean = mean(evalw$p_true[i]), low = r[1], high = r[3])
+  }))
+}))
+
+# ---- Exploratory kernel test (assumes independent rows; NOT cluster-valid) -----
 claim_test <- cal_test(evalw$score_adj, evalw$incident, n_boot = 999)
 
-# Uncertainty on the raw-vs-isotonic differences (bootstrap over vendors)
-vids <- unique(evalw$vendor_id)
-boot <- replicate(500, {
-  s <- sample(vids, replace = TRUE)
-  b <- do.call(rbind, lapply(s, function(v) evalw[evalw$vendor_id == v, ]))
-  c(d_brier = mean((b$isotonic - b$incident)^2) - mean((b$score_adj - b$incident)^2),
-    d_ece_mass = ece(b$isotonic, b$incident, strategy = "mass") -
-                 ece(b$score_adj, b$incident, strategy = "mass"),
-    d_ece_width = ece(b$isotonic, b$incident, strategy = "width") -
-                  ece(b$score_adj, b$incident, strategy = "width"))
-})
-boot_ci <- apply(boot, 1, quantile, c(0.025, 0.5, 0.975))
-
-# Tier movement: vendor's mean evaluation-window score, absolute thresholds
-# (assumption: Low < 1%, Medium 1-3%, High > 3% monthly incident probability)
-tier_of <- function(p) cut(p, c(-Inf, 0.01, 0.03, Inf), c("Low", "Medium", "High"))
+# ---- Tier (risk-band) movement: retrospective illustration ----------------------
+# Bands: Low < 1%, Medium >= 1% and < 3%, High >= 3% monthly incident probability
+# (illustrative thresholds, distinct from the criticality `tier` column).
+band_of <- function(p) cut(p, c(-Inf, par_get("calibration", "band_low_upper"), par_get("calibration", "band_medium_upper"), Inf), c("Low", "Medium", "High"), right = FALSE)
 vend <- aggregate(cbind(score_adj, isotonic) ~ vendor_id, evalw, mean)
-vend$tier_raw <- tier_of(vend$score_adj)
-vend$tier_cal <- tier_of(vend$isotonic)
-vend$move <- ifelse(as.integer(vend$tier_cal) > as.integer(vend$tier_raw), "Moves up",
-             ifelse(as.integer(vend$tier_cal) < as.integer(vend$tier_raw), "Moves down",
+vend$band_raw <- band_of(vend$score_adj); vend$band_overlay <- band_of(vend$isotonic)
+vend$move <- ifelse(as.integer(vend$band_overlay) > as.integer(vend$band_raw), "Moves up",
+             ifelse(as.integer(vend$band_overlay) < as.integer(vend$band_raw), "Moves down",
                     "No change"))
-moves <- as.data.frame(table(from = vend$tier_raw, to = vend$tier_cal, move = vend$move))
+moves <- as.data.frame(table(from = vend$band_raw, to = vend$band_overlay, move = vend$move))
 moves <- moves[moves$Freq > 0, ]
 
-saveRDS(list(fit_months = 1:30, eval_months = 31:48, reliability = rel,
-             metrics = metrics, observed_per_month = observed_per_month,
-             p_true_per_month = p_true_per_month, claim_test = claim_test,
-             boot_ci = boot_ci, vendor_tiers = vend, moves = moves,
-             base_rate_true = mean(evalw$p_true), base_rate_obs = mean(evalw$incident)),
+saveRDS(list(windows = WINDOWS, window_counts = window_counts(d),
+             n_eval_rows = nrow(evalw), n_eval_incidents = sum(evalw$incident),
+             n_eval_vendors = length(vids), n_fit_rows = nrow(fitw),
+             n_fit_incidents = sum(fitw$incident),
+             reliability = rel, metrics = point, ci = ci_tab, boot_B = B,
+             observed_per_month = observed_per_month,
+             p_true_per_month = sum(evalw$p_true) / n_months_eval,
+             claim_test = claim_test, vendor_bands = vend, moves = moves,
+             calibrators = list(isotonic_input = "raw probability",
+                                platt_input = "logit of raw probability"),
+             ece_def = "probcal::ece, 10 bins, L1, weights n_b/n; equal-frequency (primary) and equal-width (sensitivity)"),
         "data/calibration.rds")
 cat("analysis_calibration.R done\n")

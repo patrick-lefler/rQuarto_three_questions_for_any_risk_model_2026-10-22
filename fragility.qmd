@@ -13,48 +13,50 @@ b <- fr$base
 ps <- fr$plus_size
 sd_or <- fr$seed_or
 fal <- fr$falsifyr
-iso <- cal$metrics[cal$metrics$method == "Isotonic-calibrated", ]
-raw <- cal$metrics[cal$metrics$method == "Raw VendorScore", ]
+fal_tab <- as.data.frame(fal$attacks)
 full <- fc$results[1, ]
-n_inc <- sum(readRDS("data/models.rds")$bank_data$incident)
+sh <- fr$deletion_shares
+raw_top <- cal$reliability[cal$reliability$score == "Raw VendorScore", ]
+raw_top <- raw_top[which.max(raw_top$bin), ]
+cm <- cal$ci[cal$ci$variant == "Isotonic overlay" & cal$ci$metric == "brier", ]
+sgn <- function(x, d = 5) sub("^-", "−", formatC(x, digits = d, format = "f"))
+brier_chg <- cal$metrics["Isotonic overlay", "brier"] - cal$metrics["Raw VendorScore", "brier"]
 ```
 
 ## The question
 
 NorthPoint built its own logistic regression, the bank's incident-association model, from
 its panel. Its headline: vendors without a current SOC 2 Type II report have about twice
-the odds of an incident. That finding now supports a contract policy. How small a change
-makes it disappear?
+the odds of an incident (odds ratio `r num(b$or)`, vendor-clustered 95% interval `r num(b$low)` to `r num(b$high)`). That finding
+now supports a contract policy. How small a change makes it disappear?
 
 ## Method in brief
 
-**Pre-registered definition of a "kill":** the smallest perturbation under which the
-no-SOC-2 coefficient loses statistical significance at the 5% level, using standard errors
-clustered by vendor (each vendor appears 48 times, so ordinary standard errors overstate
-precision).
+**Pre-registered definition of a "kill":** the no-SOC-2 coefficient loses statistical
+significance at the 5% level using vendor-clustered standard errors (`sandwich::vcovCL`,
+Wald z). Ordinary standard errors ignore within-vendor dependence and may overstate precision.
 
-We apply it two ways. A *specification curve* re-estimates the odds ratio across 32
-reasonable model choices. A *smallest-kill search* looks for the least damaging change,
-including greedily deleting the vendor-months that most prop up the estimate.
+A *specification curve* re-estimates the odds ratio across 16 logit models (so every estimate
+is an odds ratio): include or omit vendor size, prior incidents and financial health, with or
+without trimming the slowest 1% of patch latencies. A *greedy deletion search* then removes,
+one at a time, the incident rows that most support the estimate, from the analysis dataset
+only; recorded lagged history is kept. Both are bounded searches, not proofs of what is smallest.
 
-The `falsifyr` package runs its within-model attacks on the same model.^[`falsifyr` does
-not use vendor-clustered standard errors and cannot add an omitted variable, so the
-pre-registered kill is a hand-built loop. `falsifyr` supplies the within-model attacks.]
-Alternatives, such as E-values, ask about unmeasured confounding without naming it.
+The `falsifyr` package supplies the refits and a supplementary within-model attack run.^[[`falsifyr`](https://cran.r-project.org/package=falsifyr) 1.0.0: `refit_model()` performs each specification refit; `attack()` (term `no_soc2`, intensity "normal", seed 34, kill rule p over alpha) ran 20 attacks: 19 survived, one unavailable. Its configured routine did not evaluate the added-control specification under our vendor-clustered inference rule, so we implemented that check separately.]
 
 ## Findings
 
 ```{r}
 #| label: fig-speccurve
-#| fig-cap: "No-SOC-2 odds ratio across 32 model choices, ordered by size, with 95% vendor-clustered intervals. Dashed line: the true value, 1.25."
-#| fig-alt: "Dot-and-interval plot of 32 odds ratios in two clusters: about 1.3 with vendor size included, about 2.0 to 2.4 without it, with a horizontal line at 1.25."
+#| fig-cap: "No-SOC-2 odds ratio across 16 logit specifications, ordered by size, with 95% vendor-clustered intervals. Dashed line: data-generating conditional OR, 1.25."
+#| fig-alt: "Dot-and-interval plot of 16 odds ratios in two clusters: about 1.3 with vendor size included, about 2.0 to 2.4 without it, with a horizontal line at 1.25."
 #| fig-width: 7
-#| fig-height: 4.4
+#| fig-height: 4.2
 cv$label <- ifelse(cv$vendor_size, "Vendor size included", "Vendor size omitted")
 ggplot(cv, aes(rank, or, colour = label)) +
   geom_hline(yintercept = 1, colour = "grey70") +
   geom_hline(yintercept = fr$true_or, linetype = "dashed", colour = "grey30") +
-  geom_pointrange(aes(ymin = low, ymax = high), size = 0.35) +
+  geom_pointrange(aes(ymin = low, ymax = high), size = 0.4) +
   scale_colour_manual(values = unname(okabe_ito[c("blue", "vermillion")])) +
   scale_y_log10(breaks = c(0.8, 1, 1.25, 1.5, 2, 3), labels = c("0.8", "1", "1.25", "1.5", "2", "3")) +
   theme(axis.text.x = element_blank(), panel.grid.major.x = element_blank()) +
@@ -63,34 +65,33 @@ ggplot(cv, aes(rank, or, colour = label)) +
 ```
 
 ::: {.reader-note}
-**How to read the plot.** Each dot is the answer from one reasonable way of building the
-model. Height is the estimated increase in the odds of an incident for vendors without SOC 2.
-A value of 1 means no effect. The vertical line through each dot shows the plausible range.
-The dashed line is the true effect, which we know because the data are simulated.
+**How to read the plot.** Each dot is one reasonable way of building the model; height is the
+estimated increase in the odds of an incident for vendors without SOC 2, and 1 means no
+effect. The vertical line is the plausible range. The dashed line is the generator's
+conditional odds ratio, known because the data are simulated.
 
-**What the plot tells you.** The dots form two separate groups. Every model that leaves
-out vendor size gives an estimate near 2 to 2.4; every model that includes it gives
-about 1.3, close to the truth. Other choices (the type of model, trimming outliers,
-dropping controls) matter far less. One decision drives the result. Larger vendors are both more
-likely to hold SOC 2 and safer, and leaving size out credits SOC 2 with that safety.
+**What the plot tells you.** The dots form two groups, split by one decision: vendor size.
+Larger vendors are more likely to hold SOC 2 and are safer, so leaving size out credits SOC 2
+with that safety. Closeness to 1.25 does not prove a causal model has been recovered.
 :::
 
-All `r sum(!cv$vendor_size & cv$significant)` specifications without vendor size are significant
-(odds ratios `r num(min(cv$or[!cv$vendor_size]))` to `r num(max(cv$or[!cv$vendor_size]))`). None of the `r sum(cv$vendor_size)` that include it is
-(`r num(min(cv$or[cv$vendor_size]))` to `r num(max(cv$or[cv$vendor_size]))`).
+All `r sum(!cv$vendor_size & cv$significant)` specifications without vendor size are significant (odds ratios `r num(min(cv$or[!cv$vendor_size]))` to
+`r num(max(cv$or[!cv$vendor_size]))`); none of the `r sum(cv$vendor_size)` that include it is (`r num(min(cv$or[cv$vendor_size]))` to `r num(max(cv$or[cv$vendor_size]))`). Adding vendor size alone
+takes the estimate to `r num(ps$or)` (interval `r num(ps$low)` to `r num(ps$high)`, p = `r pval(ps$p)`) with no data removed.
+This concerns the association; it does not show that SOC 2 has no effect.
 
 ```{r}
 #| label: fig-kill
-#| fig-cap: "Smallest kill: clustered p-value as incident vendor-months are deleted. Adding vendor size alone (diamond) crosses the 5% line with nothing deleted."
+#| fig-cap: "Greedy deletion search: clustered p-value as supportive incident rows are deleted. The diamond is the size-adjusted model with nothing deleted."
 #| fig-alt: "Line chart of p-value rising as rows are deleted, crossing 0.05 at the point marked, and a diamond above 0.05 at zero deletions for the model with vendor size."
 #| fig-width: 7
 #| fig-height: 4
 dp <- fr$deletion_path
-ggplot(dp, aes(removed, p)) +
+ggplot(dp, aes(step, p)) +
   geom_hline(yintercept = 0.05, linetype = "dashed", colour = "grey30") +
   geom_line(colour = okabe_ito[["blue"]], linewidth = 1) +
   geom_point(colour = okabe_ito[["blue"]], size = 1.6) +
-  geom_point(data = data.frame(removed = 0, p = ps$p), shape = 18, size = 5,
+  geom_point(data = data.frame(step = 0, p = ps$p), shape = 18, size = 5,
              colour = okabe_ito[["vermillion"]]) +
   scale_y_log10(labels = scales::label_number(drop0trailing = TRUE)) +
   labs(x = "Incident vendor-months deleted (greedy search)",
@@ -98,74 +99,72 @@ ggplot(dp, aes(removed, p)) +
 ```
 
 ::: {.reader-note}
-**How to read the plot.** The blue line removes, one at a time, the incidents at vendors
-without SOC 2 that most support the finding, and tracks how convincing the result remains.
-Higher means weaker evidence. Above the dashed line the result is no longer
-statistically significant. The diamond shows the result when we simply add vendor size.
+**How to read the plot.** The blue line removes, one at a time, incidents at vendors
+without SOC 2 that most support the finding, and tracks how convincing the result stays.
+Higher means weaker evidence; above the dashed line it is no longer statistically
+significant. The diamond is the size-adjusted result, with no rows removed.
 
-**What the plot tells you.** Throwing away real incidents erodes the finding slowly: it takes
-`r fr$kill_rows` deletions, about `r pct(fr$kill_rows / n_inc, 0)` of all `r n_inc` incidents, before it fails. A single better
-model choice does the same job with nothing deleted. The finding is sturdy against data
-noise but not against a flawed model.
+**What the plot tells you.** This is an adversarial stress test, not data cleaning. The two
+routes to the 5% line are different kinds of distance, so they should not be compared by counting.
 :::
 
-The deletion count is an upper bound on the true smallest data kill, since the search is
-greedy. `falsifyr` found no kill at all (verdict: `r tolower(fal$verdict)`), but cannot test the
-better model that matters here. A tool that only perturbs a model never reveals that the
-model itself was missing something.
+The search found a successful perturbation, within its budget of `r fr$budget` deletions, at
+`r fr$kill_rows` deleted rows: `r pct(sh["of_rows"], 2)` of all `r format(fr$n_rows, big.mark = ",")` rows, `r pct(sh["of_incidents"], 1)` of all `r fr$n_incidents` incidents and
+`r pct(sh["of_eligible"], 1)` of the `r fr$n_eligible` eligible supportive incidents. A greedy search gives
+an upper bound on the smallest such change, and post-search p-values are diagnostics, not
+fresh tests. `falsifyr` found no kill in its run (verdict `r tolower(fal$verdict)`), which is not proof of robustness.
 
-**Seed sensitivity.** We re-ran the simulation under seeds 1 to 40 with the final
-parameters. The naive odds ratio ranged from `r num(min(sd_or$naive_or))` to `r num(max(sd_or$naive_or))` (median `r num(median(sd_or$naive_or))`), and was
-significant in `r sum(sd_or$naive_p < 0.05)` of 40. With vendor size included, it ranged from
-`r num(min(sd_or$adj_or))` to `r num(max(sd_or$adj_or))` (median `r num(median(sd_or$adj_or))`) and was significant in only `r sum(sd_or$adj_p < 0.05)`. With about 200 incidents, a
-single sample can move the answer a lot, so the exact "2×" is itself fragile, even though the upward bias from omitting size is systematic.
+**Seed sensitivity.** Each seed generates a different synthetic dataset, so this is a
+Monte Carlo repeatability check, not a perturbation of the bank's data. We re-ran the
+generator for seeds 1 to 40, with the same clustered baseline. The omitted-size odds ratio ranged from `r num(min(sd_or$naive_or))` to `r num(max(sd_or$naive_or))` (median `r num(median(sd_or$naive_or))`), significant in `r sum(sd_or$naive_p < 0.05)` of 40
+runs. With size included it ranged from `r num(min(sd_or$adj_or))` to `r num(max(sd_or$adj_or))` (median `r num(median(sd_or$adj_or))`), significant in `r sum(sd_or$adj_p < 0.05)`. These counts
+are descriptive and imprecise. Seed 34 was chosen during development because it illustrates the
+intended patterns so its p-values are not an
+unbiased experiment. The upward bias from omitting size is repeatable; the exact "2×" is not.
 
 ## So what
 
-The "2× odds" headline reflects confounding, not a robust effect of SOC 2: in this
-sample the size-adjusted estimate is `r num(ps$or)` (interval `r num(ps$low)` to `r num(ps$high)`), not distinguishable from no effect at 5%.
-The model was built to describe incident associations, then reused to justify a contract
-policy. The guidance flags use beyond a model's intended purpose (§IV, Model Use) and
-calls for effective challenge and alternative assumptions (§III, §V). The challenge here
-was a single added variable.
-
-This too is partial validation: a robust association would still be an association, not a
-cause, and the page cannot say whether SOC 2 reduces risk.
+The "2× odds" headline reflects confounding in this simulator, not a robust effect of
+SOC 2: the size-adjusted estimate is `r num(ps$or)` (`r num(ps$low)` to `r num(ps$high)`), which is also compatible with a sizeable effect. The bank's own model
+was built to describe associations, then reused to support a contract policy.
+The April 17, 2026 interagency [*Supervisory Guidance on Model Risk Management*](https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf)
+(Federal Reserve, FDIC, OCC) flags use beyond a model's intended purpose (§IV, Model Use), and
+describes effective challenge (§III) and testing with alternative assumptions (§IV). The challenge here
+was one added variable. This is partial validation too, and a robust association would still not
+be a causal effect.
 
 ```{r}
 #| label: tbl-scorecard
-#| tbl-cap: "Series scorecard: NorthPoint's measured results and the responses suggested by the guidance's vocabulary."
+#| tbl-cap: "Series scorecard: measured results at NorthPoint, and responses in the guidance's vocabulary (measured result and decision kept separate)."
 score <- data.frame(
   Test = c("Calibration", "Forecast dominance", "Fragility"),
   Question = c("Honest probabilities?", "Beats a simple model?", "Robust headline?"),
-  Result = c(
-    sprintf("Top-scored group predicted %s vs observed %s; recalibration gains are small and unclear (Brier %s to %s), and undercount incidents.",
-            pct(cal$reliability$predicted[cal$reliability$score == "Raw VendorScore" & cal$reliability$bin == 10]),
-            pct(cal$reliability$observed[cal$reliability$score == "Raw VendorScore" & cal$reliability$bin == 10]),
-            num(raw$brier, 4), num(iso$brier, 4)),
-    sprintf("MSE %s lower than the 12-month average, not significant (p = %s).",
+  `Measured result` = c(
+    sprintf("Raw top group predicted %s, observed %s. Isotonic overlay changes Brier by %s (%s to %s); gains small and unclear.",
+            pct(raw_top$predicted), pct(raw_top$observed), sgn(brier_chg), sgn(cm$diff_low), sgn(cm$diff_high)),
+    sprintf("MSE %s lower than the 12-month average; DM p = %s (n = 18): no detectable advantage.",
             pct(1 - full$mse_vs / full$mse_naive, 0), pval(full$dm_p)),
-    sprintf("Odds ratio %s falls to %s (p = %s) once vendor size is added.",
+    sprintf("Odds ratio %s becomes %s (p = %s) when vendor size is added; one added variable removes significance.",
             num(b$or), num(ps$or), num(ps$p))),
-  Response = c("Overlay: recalibrate output; set thresholds, refresh regularly",
-               "Closer monitoring; raise with vendor; ask for development evidence; keep contingency plan",
-               "Limit use: not a basis for contract policy; document the exception"))
+  `Suggested response` = c(
+    "Do not approve the tested overlay for routine use yet; investigate, keep the existing process under documented controls, validate any replacement on later outcomes.",
+    "Closer monitoring; raise with vendor; ask for development evidence; keep contingency plan.",
+    "Limit use: do not use this association alone to infer the effect of requiring SOC 2; document the exception."),
+  check.names = FALSE)
 knitr::kable(score)
 ```
 
 ::: {.reader-note}
-**How to read the table.** One row per question. The "Result" column is what we measured
-at NorthPoint. The "Response" column is the action that sound practice suggests, in the
-guidance's own vocabulary: an overlay adjusts a model's output without changing the
-model, and limits on use restrict what a result may be used for.
+**How to read the table.** One row per question: what we measured at NorthPoint, and the
+action sound practice suggests, in the guidance's vocabulary. An overlay adjusts a model's
+output without changing the model; limits on use restrict what a result may be used for.
 
-**What the table tells you.** None of the three tests found the vendor model or the bank's
-own finding to be clean. These results do not, on their own, argue for scrapping VendorScore. Each calls for a
-proportionate response: adjust, watch, or limit. The weakest item is the bank's own
-finding, not the vendor's model.
+**What the table tells you.** None of the three tests found anything clean, and none, alone,
+argues for scrapping VendorScore. The weakest item is the bank's own finding.
 :::
 
 ## Committee action
 
-Sound practice suggests documenting the SOC 2 finding as an exception to its intended
-purpose: not a basis for contract policy until a size-adjusted analysis supports it. The April 2026 interagency *Supervisory Guidance on Model Risk Management* does not prescribe this; it is a judgement for the committee.
+Sound practice suggests documenting the SOC 2 finding as an exception (§VI) and
+analysing its new use before relying on it (§IV). Do not use this association alone to infer the effect of requiring SOC 2: contract
+requirements need business, legal and control evidence. The guidance does not prescribe this.

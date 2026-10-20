@@ -1,0 +1,11 @@
+"page","view","scroll_width","client_width","page_scrolls_horizontally"
+"index","desktop",1265,1265,FALSE
+"index","mobile",390,390,FALSE
+"calibration","desktop",1265,1265,FALSE
+"calibration","mobile",390,390,FALSE
+"forecast","desktop",1265,1265,FALSE
+"forecast","mobile",390,390,FALSE
+"fragility","desktop",1265,1265,FALSE
+"fragility","mobile",390,390,FALSE
+"reproducibility","desktop",1265,1265,FALSE
+"reproducibility","mobile",390,390,FALSE
