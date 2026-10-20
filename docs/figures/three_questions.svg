@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 330" role="img" aria-label="Three panels: question, test, decision it protects" font-family="Helvetica, Arial, sans-serif">
+<style>.t{font-size:15px;font-weight:700;fill:#fff}.q{font-size:15px;font-weight:600;fill:#222}.l{font-size:11px;fill:#666;letter-spacing:.06em}.b{font-size:14px;fill:#222}</style>
+<rect width="960" height="330" fill="#fff"/>
+<rect x="10" y="10" width="300" height="310" rx="8" fill="#f6f7f9" stroke="#d5d9df"/>
+<rect x="10" y="10" width="300" height="38" rx="8" fill="#0072B2"/><rect x="10" y="30" width="300" height="18" fill="#0072B2"/>
+<text class="t" x="26" y="35">1. Calibration</text>
+<text class="l" x="26" y="76">QUESTION</text><text class="q" x="26" y="98">Are its probabilities honest?</text>
+<line x1="26" x2="294" y1="116" y2="116" stroke="#d5d9df"/>
+<text class="l" x="26" y="140">TEST</text>
+<text class="b" x="26" y="162">Reliability diagram,</text>
+<text class="b" x="26" y="182">Brier score, ECE</text>
+<line x1="26" x2="294" y1="212" y2="212" stroke="#d5d9df"/>
+<text class="l" x="26" y="236">DECISION IT PROTECTS</text>
+<text class="b" x="26" y="258">how scores feed limits</text>
+<text class="b" x="26" y="278">and thresholds</text>
+<rect x="330" y="10" width="300" height="310" rx="8" fill="#f6f7f9" stroke="#d5d9df"/>
+<rect x="330" y="10" width="300" height="38" rx="8" fill="#B36B00"/><rect x="330" y="30" width="300" height="18" fill="#B36B00"/>
+<text class="t" x="346" y="35">2. Forecast dominance</text>
+<text class="l" x="346" y="76">QUESTION</text><text class="q" x="346" y="98">Does it beat a simple model?</text>
+<line x1="346" x2="614" y1="116" y2="116" stroke="#d5d9df"/>
+<text class="l" x="346" y="140">TEST</text>
+<text class="b" x="346" y="162">Diebold–Mariano test</text>
+<text class="b" x="346" y="182">vs 12-month average</text>
+<line x1="346" x2="614" y1="212" y2="212" stroke="#d5d9df"/>
+<text class="l" x="346" y="236">DECISION IT PROTECTS</text>
+<text class="b" x="346" y="258">whether to keep paying</text>
+<text class="b" x="346" y="278">for the vendor model</text>
+<rect x="650" y="10" width="300" height="310" rx="8" fill="#f6f7f9" stroke="#d5d9df"/>
+<rect x="650" y="10" width="300" height="38" rx="8" fill="#009E73"/><rect x="650" y="30" width="300" height="18" fill="#009E73"/>
+<text class="t" x="666" y="35">3. Fragility</text>
+<text class="l" x="666" y="76">QUESTION</text><text class="q" x="666" y="98">Would the headline survive a push?</text>
+<line x1="666" x2="934" y1="116" y2="116" stroke="#d5d9df"/>
+<text class="l" x="666" y="140">TEST</text>
+<text class="b" x="666" y="162">Specification curve,</text>
+<text class="b" x="666" y="182">smallest-kill search</text>
+<line x1="666" x2="934" y1="212" y2="212" stroke="#d5d9df"/>
+<text class="l" x="666" y="236">DECISION IT PROTECTS</text>
+<text class="b" x="666" y="258">whether a finding can</text>
+<text class="b" x="666" y="278">support contract policy</text>
+</svg>

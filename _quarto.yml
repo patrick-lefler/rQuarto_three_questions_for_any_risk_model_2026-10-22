@@ -1,0 +1,36 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - index.qmd
+    - calibration.qmd
+    - forecast.qmd
+    - fragility.qmd
+
+website:
+  title: "Trust, but Verify: Validating a Vendor Risk Model You Can't See Inside"
+  sidebar:
+    style: docked
+    contents:
+      - href: index.qmd
+        text: Overview
+      - href: calibration.qmd
+        text: Calibration
+      - href: forecast.qmd
+        text: Forecast
+      - href: fragility.qmd
+        text: Fragility
+
+format:
+  html:
+    theme: [cosmo, theme.scss]
+    toc: true
+
+execute:
+  echo: true
+  freeze: auto
+  warning: false
+  message: false
+
+code-fold: true
+code-summary: "Show the code"

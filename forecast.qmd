@@ -1,0 +1,158 @@
+---
+title: "Question 2: Does It Beat a Simple Model?"
+---
+
+```{r}
+#| include: false
+source("R/common.R")
+fc <- readRDS("data/forecast.rds")
+tst <- fc$test
+res <- fc$results
+full <- res[1, ]
+post <- res[2, ]
+auc <- fc$auc_eval
+long <- rbind(
+  data.frame(month = tst$month, series = "Actual incidents", value = tst$actual),
+  data.frame(month = tst$month, series = "VendorScore forecast", value = tst$vendorscore),
+  data.frame(month = tst$month, series = "12-month average", value = tst$naive))
+cum_end <- tail(tst$cum_diff, 1)
+cum_shift <- tst$cum_diff[tst$month == 36]
+```
+
+## The question
+
+A sophisticated model earns its fee only if it beats a plain alternative. NorthPoint's plain
+alternative is a 12-month rolling average of past incident counts. The question: does
+VendorScore forecast the bank's monthly incident total better than that average, and does
+any advantage survive the deterioration in vendor patching after month 36?
+
+## Method in brief
+
+Each month, VendorScore's portfolio forecast is the sum of its 300 vendor scores. The
+benchmark is the average of the previous 12 months' actual incident counts, computed so
+that month *t* uses only months before *t*. We compare both with actual incident totals
+over months 31 to 48, an out-of-sample, out-of-time window.
+
+We summarise accuracy with mean squared error (MSE) and mean absolute error (MAE), and test
+equal accuracy with a Diebold–Mariano test using the Harvey–Leybourne–Newbold small-sample
+correction, from the `forecastdom` package. We run it twice: over months 31 to 48, and over
+months 37 to 48 only, after the shift. Rival approaches, such as encompassing tests or
+superior-predictive-ability tests, ask related questions but need longer series.
+
+## Findings
+
+```{r}
+#| label: fig-forecast
+#| fig-cap: "Monthly incident totals versus both forecasts, months 31–48. The vertical line marks month 36, the last month before patching latency drifts."
+#| fig-alt: "Line chart of actual monthly incident counts, the VendorScore forecast and the 12-month average, with a vertical line at month 36."
+#| fig-width: 7
+#| fig-height: 4.2
+ggplot(long, aes(month, value, colour = series, linetype = series)) +
+  geom_vline(xintercept = fc$shift_month, colour = "grey50", linetype = "dotted") +
+  geom_line(linewidth = 0.9) +
+  geom_point(data = subset(long, series == "Actual incidents"), size = 2) +
+  scale_colour_manual(values = c("Actual incidents" = okabe_ito[["blue"]],
+                                 "VendorScore forecast" = okabe_ito[["orange"]],
+                                 "12-month average" = okabe_ito[["grey"]])) +
+  scale_linetype_manual(values = c("Actual incidents" = "solid",
+                                   "VendorScore forecast" = "solid",
+                                   "12-month average" = "longdash")) +
+  labs(x = "Month", y = "Incidents per month (portfolio)", colour = NULL, linetype = NULL)
+```
+
+::: {.reader-note}
+**How to read the plot.** Blue dots joined by a line are the actual number of incidents
+across all 300 vendors each month. The orange line is what VendorScore forecast. The
+grey dashed line is the simple 12-month average. The dotted vertical line marks when vendor
+patching began to slow.
+
+**What the plot tells you.** Actual incidents trend upward and swing widely from month to
+month. The 12-month average trails the trend, forecasting too low for most of the window.
+VendorScore sits closer to the level of incidents but is far smoother than the actual
+series, so it misses most month-to-month swings. Neither forecast predicts individual
+spikes.
+:::
+
+Both forecasts are too smooth to follow individual months, but they differ in level. The
+12-month average under-forecast by `r num(full$bias_naive, 1)` incidents a month on average, because it
+looks backwards while incidents rise. VendorScore's average miss was `r num(full$bias_vs, 1)`.
+
+```{r}
+#| label: fig-cumulative
+#| fig-cap: "Cumulative loss differential, months 31–48. Above zero, VendorScore has accumulated lower squared error than the 12-month average."
+#| fig-alt: "Line chart of the running total of squared-error differences, ending positive, with a vertical line at month 36."
+#| fig-width: 7
+#| fig-height: 3.6
+ggplot(tst, aes(month, cum_diff)) +
+  geom_hline(yintercept = 0, colour = "grey50") +
+  geom_vline(xintercept = fc$shift_month, colour = "grey50", linetype = "dotted") +
+  geom_area(fill = okabe_ito[["blue"]], alpha = 0.18) +
+  geom_line(colour = okabe_ito[["blue"]], linewidth = 1) +
+  labs(x = "Month", y = "Cumulative squared-error advantage")
+```
+
+::: {.reader-note}
+**How to read the plot.** Each month we ask which forecast was closer to the truth and by
+how much. The line keeps a running total: it rises when VendorScore wins a month, falls
+when the 12-month average wins, and the height is the net advantage so far.
+
+**What the plot tells you.** The line ends at `r num(cum_end, 1)` above zero, so VendorScore has a net
+advantage. It rises only `r num(cum_shift, 1)` by month 36 and `r num(cum_end - cum_shift, 1)` more afterwards, and it
+climbs unevenly, with several losing months. A tidy upward line would be stronger evidence;
+this one is a mixed record with a favourable tilt.
+:::
+
+```{r}
+#| label: tbl-accuracy
+#| tbl-cap: "Forecast accuracy and Diebold–Mariano tests (benchmark versus VendorScore). A positive statistic favours VendorScore."
+tab <- data.frame(
+  Window = c("Months 31–48 (n = 18)", "Months 37–48 (n = 12)"),
+  `MSE 12-month` = res$mse_naive, `MSE VendorScore` = res$mse_vs,
+  `MAE 12-month` = res$mae_naive, `MAE VendorScore` = res$mae_vs,
+  `DM statistic` = res$dm_stat, `p-value` = res$dm_p, check.names = FALSE)
+knitr::kable(tab, digits = c(0, 2, 2, 2, 2, 2, 3))
+```
+
+::: {.reader-note}
+**How to read the table.** Each row is a stretch of months. Error columns show the typical
+miss in incidents per month for each forecast, so smaller is better. MSE punishes large
+misses more heavily than MAE does. The last two columns test whether the gap is real or
+could be luck: a small p-value (below 0.05) means luck is an unlikely explanation.
+
+**What the table tells you.** VendorScore has lower errors in both windows, but p-values of
+`r pval(full$dm_p)` and `r pval(post$dm_p)` are well above 0.05. Eighteen months, and twelve after the
+shift, are too few to separate a modest edge from chance. The result is "no detectable advantage,"
+not proof that the two are equal.
+:::
+
+VendorScore's MSE is `r pct(1 - full$mse_vs / full$mse_naive, 0)` lower over the full window and
+`r pct(1 - post$mse_vs / post$mse_naive, 0)` lower after the shift. The MAE advantage is smaller, and
+after the shift almost vanishes (`r num(post$mae_vs, 2)` versus `r num(post$mae_naive, 2)`). A non-significant test with n = 18 has low power,
+so it means no detectable advantage, not equality. The pre-shift record is also thin: months
+31 to 36 contribute only six observations.
+
+The vendor's AUC of 0.81 is measured on its own development data. It cannot show that
+VendorScore stays reliable at *this* bank after conditions change. As a rough check,
+NorthPoint's own outcomes give an AUC of `r num(auc["all"], 2)` over months 31 to 48:
+`r num(auc["pre"], 2)` for months 31 to 36 and `r num(auc["post"], 2)` afterwards. These come with no interval and few incidents, so
+a drop of a few points could be noise. Only ongoing monitoring at the bank can answer the
+question (§VII).
+
+## So what
+
+On this evidence, VendorScore gets the level of incidents roughly right and the simple
+benchmark does not, but the advantage is statistically unproven and concentrated in a
+period when the benchmark lagged a rising trend. The comparison is about aggregate counts,
+not about whether individual vendors are ranked correctly.
+
+The April 2026 interagency *Supervisory Guidance on Model Risk Management* treats
+out-of-sample and out-of-time testing and benchmarking as part of model testing (§IV) and
+ongoing monitoring (§V). The cumulative-differential chart is the kind of metric that fits
+there: it turns "is the model still earning its place?" into a line a committee can watch.
+This is partial validation: it tests outputs, not the proprietary method.
+
+## Committee action
+
+Sound practice suggests benchmarking every vendor model against a named simple
+alternative, out of sample and out of time, and adding the loss differential to ongoing
+monitoring so that deterioration triggers review.

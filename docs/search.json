@@ -1,0 +1,252 @@
+[
+  {
+    "objectID": "fragility.html",
+    "href": "fragility.html",
+    "title": "Question 3: Would Its Headline Finding Survive a Push?",
+    "section": "",
+    "text": "NorthPoint built its own logistic regression, the bank’s incident-association model, from its panel. Its headline: vendors without a current SOC 2 Type II report have about twice the odds of an incident. That finding now supports a contract policy. How small a change makes it disappear?",
+    "crumbs": [
+      "Fragility"
+    ]
+  },
+  {
+    "objectID": "fragility.html#the-question",
+    "href": "fragility.html#the-question",
+    "title": "Question 3: Would Its Headline Finding Survive a Push?",
+    "section": "",
+    "text": "NorthPoint built its own logistic regression, the bank’s incident-association model, from its panel. Its headline: vendors without a current SOC 2 Type II report have about twice the odds of an incident. That finding now supports a contract policy. How small a change makes it disappear?",
+    "crumbs": [
+      "Fragility"
+    ]
+  },
+  {
+    "objectID": "fragility.html#method-in-brief",
+    "href": "fragility.html#method-in-brief",
+    "title": "Question 3: Would Its Headline Finding Survive a Push?",
+    "section": "Method in brief",
+    "text": "Method in brief\nPre-registered definition of a “kill”: the smallest perturbation under which the no-SOC-2 coefficient loses statistical significance at the 5% level, using standard errors clustered by vendor (each vendor appears 48 times, so ordinary standard errors overstate precision).\nWe apply it two ways. A specification curve re-estimates the odds ratio across 32 reasonable model choices. A smallest-kill search looks for the least damaging change, including greedily deleting the vendor-months that most prop up the estimate.\nThe falsifyr package runs its within-model attacks on the same model.1 Alternatives, such as E-values, ask about unmeasured confounding without naming it.",
+    "crumbs": [
+      "Fragility"
+    ]
+  },
+  {
+    "objectID": "fragility.html#findings",
+    "href": "fragility.html#findings",
+    "title": "Question 3: Would Its Headline Finding Survive a Push?",
+    "section": "Findings",
+    "text": "Findings\n\n\nShow the code\ncv$label &lt;- ifelse(cv$vendor_size, \"Vendor size included\", \"Vendor size omitted\")\nggplot(cv, aes(rank, or, colour = label)) +\n  geom_hline(yintercept = 1, colour = \"grey70\") +\n  geom_hline(yintercept = fr$true_or, linetype = \"dashed\", colour = \"grey30\") +\n  geom_pointrange(aes(ymin = low, ymax = high), size = 0.35) +\n  scale_colour_manual(values = unname(okabe_ito[c(\"blue\", \"vermillion\")])) +\n  scale_y_log10(breaks = c(0.8, 1, 1.25, 1.5, 2, 3), labels = c(\"0.8\", \"1\", \"1.25\", \"1.5\", \"2\", \"3\")) +\n  theme(axis.text.x = element_blank(), panel.grid.major.x = element_blank()) +\n  labs(x = \"Specification (ordered by odds ratio)\",\n       y = \"Odds ratio for no SOC 2 (log scale)\", colour = NULL)\n\n\n\n\n\n\n\n\nFigure 1: No-SOC-2 odds ratio across 32 model choices, ordered by size, with 95% vendor-clustered intervals. Dashed line: the true value, 1.25.\n\n\n\n\n\n\nHow to read the plot. Each dot is the answer from one reasonable way of building the model. Height is the estimated increase in the odds of an incident for vendors without SOC 2. A value of 1 means no effect. The vertical line through each dot shows the plausible range. The dashed line is the true effect, which we know because the data are simulated.\nWhat the plot tells you. The dots form two separate groups. Every model that leaves out vendor size gives an estimate near 2 to 2.4; every model that includes it gives about 1.3, close to the truth. Other choices (the type of model, trimming outliers, dropping controls) matter far less. One decision drives the result. Larger vendors are both more likely to hold SOC 2 and safer, and leaving size out credits SOC 2 with that safety.\n\nAll 16 specifications without vendor size are significant (odds ratios 2.04 to 2.43). None of the 16 that include it is (1.28 to 1.36).\n\n\nShow the code\ndp &lt;- fr$deletion_path\nggplot(dp, aes(removed, p)) +\n  geom_hline(yintercept = 0.05, linetype = \"dashed\", colour = \"grey30\") +\n  geom_line(colour = okabe_ito[[\"blue\"]], linewidth = 1) +\n  geom_point(colour = okabe_ito[[\"blue\"]], size = 1.6) +\n  geom_point(data = data.frame(removed = 0, p = ps$p), shape = 18, size = 5,\n             colour = okabe_ito[[\"vermillion\"]]) +\n  scale_y_log10(labels = scales::label_number(drop0trailing = TRUE)) +\n  labs(x = \"Incident vendor-months deleted (greedy search)\",\n       y = \"Clustered p-value (log scale)\")\n\n\n\n\n\n\n\n\nFigure 2: Smallest kill: clustered p-value as incident vendor-months are deleted. Adding vendor size alone (diamond) crosses the 5% line with nothing deleted.\n\n\n\n\n\n\nHow to read the plot. The blue line removes, one at a time, the incidents at vendors without SOC 2 that most support the finding, and tracks how convincing the result remains. Higher means weaker evidence. Above the dashed line the result is no longer statistically significant. The diamond shows the result when we simply add vendor size.\nWhat the plot tells you. Throwing away real incidents erodes the finding slowly: it takes 29 deletions, about 14% of all 209 incidents, before it fails. A single better model choice does the same job with nothing deleted. The finding is sturdy against data noise but not against a flawed model.\n\nThe deletion count is an upper bound on the true smallest data kill, since the search is greedy. falsifyr found no kill at all (verdict: resilient), but cannot test the better model that matters here. A tool that only perturbs a model never reveals that the model itself was missing something.\nSeed sensitivity. We re-ran the simulation under seeds 1 to 40 with the final parameters. The naive odds ratio ranged from 1.30 to 2.76 (median 2.02), and was significant in 38 of 40. With vendor size included, it ranged from 0.84 to 1.78 (median 1.29) and was significant in only 9. With about 200 incidents, a single sample can move the answer a lot, so the exact “2×” is itself fragile, even though the upward bias from omitting size is systematic.",
+    "crumbs": [
+      "Fragility"
+    ]
+  },
+  {
+    "objectID": "fragility.html#so-what",
+    "href": "fragility.html#so-what",
+    "title": "Question 3: Would Its Headline Finding Survive a Push?",
+    "section": "So what",
+    "text": "So what\nThe “2× odds” headline reflects confounding, not a robust effect of SOC 2: in this sample the size-adjusted estimate is 1.28 (interval 0.90 to 1.82), not distinguishable from no effect at 5%. The model was built to describe incident associations, then reused to justify a contract policy. The guidance flags use beyond a model’s intended purpose (§IV, Model Use) and calls for effective challenge and alternative assumptions (§III, §V). The challenge here was a single added variable.\nThis too is partial validation: a robust association would still be an association, not a cause, and the page cannot say whether SOC 2 reduces risk.\n\n\nShow the code\nscore &lt;- data.frame(\n  Test = c(\"Calibration\", \"Forecast dominance\", \"Fragility\"),\n  Question = c(\"Honest probabilities?\", \"Beats a simple model?\", \"Robust headline?\"),\n  Result = c(\n    sprintf(\"Top-scored group predicted %s vs observed %s; recalibration gains are small and unclear (Brier %s to %s), and undercount incidents.\",\n            pct(cal$reliability$predicted[cal$reliability$score == \"Raw VendorScore\" & cal$reliability$bin == 10]),\n            pct(cal$reliability$observed[cal$reliability$score == \"Raw VendorScore\" & cal$reliability$bin == 10]),\n            num(raw$brier, 4), num(iso$brier, 4)),\n    sprintf(\"MSE %s lower than the 12-month average, not significant (p = %s).\",\n            pct(1 - full$mse_vs / full$mse_naive, 0), pval(full$dm_p)),\n    sprintf(\"Odds ratio %s falls to %s (p = %s) once vendor size is added.\",\n            num(b$or), num(ps$or), num(ps$p))),\n  Response = c(\"Overlay: recalibrate output; set thresholds, refresh regularly\",\n               \"Closer monitoring; raise with vendor; ask for development evidence; keep contingency plan\",\n               \"Limit use: not a basis for contract policy; document the exception\"))\nknitr::kable(score)\n\n\n\n\nTable 1: Series scorecard: NorthPoint’s measured results and the responses suggested by the guidance’s vocabulary.\n\n\n\n\n\n\n\n\n\n\n\n\nTest\nQuestion\nResult\nResponse\n\n\n\n\nCalibration\nHonest probabilities?\nTop-scored group predicted 10.5% vs observed 7.0%; recalibration gains are small and unclear (Brier 0.0191 to 0.0186), and undercount incidents.\nOverlay: recalibrate output; set thresholds, refresh regularly\n\n\nForecast dominance\nBeats a simple model?\nMSE 22% lower than the 12-month average, not significant (p = 0.235).\nCloser monitoring; raise with vendor; ask for development evidence; keep contingency plan\n\n\nFragility\nRobust headline?\nOdds ratio 2.06 falls to 1.28 (p = 0.17) once vendor size is added.\nLimit use: not a basis for contract policy; document the exception\n\n\n\n\n\n\n\n\n\nHow to read the table. One row per question. The “Result” column is what we measured at NorthPoint. The “Response” column is the action that sound practice suggests, in the guidance’s own vocabulary: an overlay adjusts a model’s output without changing the model, and limits on use restrict what a result may be used for.\nWhat the table tells you. None of the three tests found the vendor model or the bank’s own finding to be clean. These results do not, on their own, argue for scrapping VendorScore. Each calls for a proportionate response: adjust, watch, or limit. The weakest item is the bank’s own finding, not the vendor’s model.",
+    "crumbs": [
+      "Fragility"
+    ]
+  },
+  {
+    "objectID": "fragility.html#committee-action",
+    "href": "fragility.html#committee-action",
+    "title": "Question 3: Would Its Headline Finding Survive a Push?",
+    "section": "Committee action",
+    "text": "Committee action\nSound practice suggests documenting the SOC 2 finding as an exception to its intended purpose: not a basis for contract policy until a size-adjusted analysis supports it. The April 2026 interagency Supervisory Guidance on Model Risk Management does not prescribe this; it is a judgement for the committee.",
+    "crumbs": [
+      "Fragility"
+    ]
+  },
+  {
+    "objectID": "fragility.html#footnotes",
+    "href": "fragility.html#footnotes",
+    "title": "Question 3: Would Its Headline Finding Survive a Push?",
+    "section": "Footnotes",
+    "text": "Footnotes\n\n\nfalsifyr does not use vendor-clustered standard errors and cannot add an omitted variable, so the pre-registered kill is a hand-built loop. falsifyr supplies the within-model attacks.↩︎",
+    "crumbs": [
+      "Fragility"
+    ]
+  },
+  {
+    "objectID": "calibration.html",
+    "href": "calibration.html",
+    "title": "Question 1: Are Its Probabilities Honest?",
+    "section": "",
+    "text": "When VendorScore says a vendor has a 10% chance of an incident, do incidents happen about 10% of the time? RiskMetric Systems asserts that its scores are “well-calibrated.” NorthPoint cannot inspect the model, but it can compare the scores with what happened. Here we test the claim on months 31 to 48, which the vendor never saw.",
+    "crumbs": [
+      "Calibration"
+    ]
+  },
+  {
+    "objectID": "calibration.html#the-question",
+    "href": "calibration.html#the-question",
+    "title": "Question 1: Are Its Probabilities Honest?",
+    "section": "",
+    "text": "When VendorScore says a vendor has a 10% chance of an incident, do incidents happen about 10% of the time? RiskMetric Systems asserts that its scores are “well-calibrated.” NorthPoint cannot inspect the model, but it can compare the scores with what happened. Here we test the claim on months 31 to 48, which the vendor never saw.",
+    "crumbs": [
+      "Calibration"
+    ]
+  },
+  {
+    "objectID": "calibration.html#method-in-brief",
+    "href": "calibration.html#method-in-brief",
+    "title": "Question 1: Are Its Probabilities Honest?",
+    "section": "Method in brief",
+    "text": "Method in brief\nWe sort the 5,400 evaluation-window vendor-months into ten equal-sized groups by score, then compare each group’s average score with its observed incident rate. That comparison is a reliability diagram. We summarise it with the Brier score (average squared error of the probabilities; lower is better) and the expected calibration error, ECE (the average gap between score and outcome across groups). A kernel calibration test asks whether the gaps are larger than chance would produce.\nTo repair the scores without touching the vendor’s code, we fit an isotonic regression (a monotone step-function mapping) that converts raw scores into calibrated ones. It is fit on months 1 to 30 only, so every number below comes from months 31 to 48, which the calibrator never saw. Platt scaling, a smoother alternative, is in the table. Both come from the probcal package.",
+    "crumbs": [
+      "Calibration"
+    ]
+  },
+  {
+    "objectID": "calibration.html#findings",
+    "href": "calibration.html#findings",
+    "title": "Question 1: Are Its Probabilities Honest?",
+    "section": "Findings",
+    "text": "Findings\n\n\nShow the code\nggplot(rel, aes(predicted, observed, colour = score, shape = score)) +\n  geom_abline(slope = 1, intercept = 0, colour = \"grey50\") +\n  geom_hline(yintercept = cal$base_rate_true, linetype = \"dashed\", colour = \"grey40\") +\n  geom_errorbar(aes(ymin = low, ymax = high), width = 0.04, alpha = 0.5) +\n  geom_point(size = 2.6) +\n  scale_x_log10(labels = scales::label_percent(accuracy = 0.1)) +\n  scale_y_log10(labels = scales::label_percent(accuracy = 0.1)) +\n  scale_colour_manual(values = unname(okabe_ito[c(\"vermillion\", \"blue\")])) +\n  labs(x = \"Average predicted probability (log scale)\",\n       y = \"Observed incident rate (log scale)\", colour = NULL, shape = NULL)\n\n\n\n\n\n\n\n\nFigure 1: Reliability diagram, months 31–48. Points are score deciles with 95% intervals; dashed line is the true average incident rate.\n\n\n\n\n\n\nHow to read the plot. Each dot groups vendor-months with similar scores. Left to right is what the model predicted; bottom to top is what actually happened. A dot on the grey diagonal means the model was right on average. The lines through each dot show the range of plausible outcomes, given that incidents are rare.\nWhat the plot tells you. The highest-scored group sits below the diagonal: the model said about 10.5%, and 7.0% of those vendor-months had an incident. Most lower-scored groups sit above the diagonal, so the model understated their risk. With only about 100 incidents, the intervals are wide. The pattern is suggestive but not conclusive for any single group.\n\nThe raw scores are overconfident at both ends. The top-scored group was told it faced a 10.5% risk, but its observed rate was 7.0%, with an interval (5.0% to 9.5%) that excludes the prediction. In 8 of 10 groups the observed rate exceeded the score, mostly the low-scored ones. The kernel test rejects “well-calibrated” (p = 0.026), though with this few incidents we read that as moderate evidence, not proof.\nAt the portfolio level the picture is kinder: raw scores imply 5.5 incidents a month, against 5.7 observed.\n\n\nShow the code\ntab &lt;- met[, c(\"method\", \"brier\", \"ece_mass\", \"ece_width\", \"expected_per_month\")]\ntab &lt;- rbind(tab, data.frame(method = \"Observed\", brier = NA, ece_mass = NA,\n                             ece_width = NA, expected_per_month = cal$observed_per_month))\nknitr::kable(tab, digits = c(0, 4, 4, 4, 1), na = \"—\",\n             col.names = c(\"Scores\", \"Brier\", \"ECE (equal-size groups)\",\n                           \"ECE (equal-width groups)\", \"Incidents per month\"))\n\n\n\n\nTable 1: Calibration metrics, months 31–48. Lower Brier and ECE are better; the last column compares with observed incidents per month.\n\n\n\n\n\n\n\n\n\n\n\n\n\nScores\nBrier\nECE (equal-size groups)\nECE (equal-width groups)\nIncidents per month\n\n\n\n\nRaw VendorScore\n0.0191\n0.0079\n0.0072\n5.5\n\n\nIsotonic-calibrated\n0.0186\n0.0065\n0.0083\n4.0\n\n\nPlatt-calibrated\n0.0192\n0.0082\n0.0096\n3.6\n\n\nObserved\nNA\nNA\nNA\n5.7\n\n\n\n\n\n\n\n\n\nHow to read the table. Each row is a version of the scores: the vendor’s raw output, two adjusted versions, and the actual count. Smaller Brier and ECE numbers mean more honest probabilities. ECE is shown with two common ways of grouping scores, because the choice matters. The last column is the number of incidents the scores imply each month.\nWhat the table tells you. Isotonic adjustment lowers the Brier score slightly and lowers ECE with equal-size groups, but raises it with equal-width groups, so the two ECE versions disagree. Re-sampling vendors, the Brier change is -4.8 in units of 0.0001, with an interval of -13.0 to 0.2: close to zero. The adjusted scores also imply only 4.0 incidents a month, well below the 5.7 observed.\n\nRecalibration helps less than hoped. The improvement in Brier score is small, its interval reaches zero, and ECE moves in opposite directions depending on how groups are formed. Worse, the adjusted scores undercount incidents by about 30%. The calibrator learned the months 1 to 30 base rate, but incidents rose afterwards (Page 3), so a mapping fit on older data goes stale.\n\n\nShow the code\nmov &lt;- cal$moves\nmov$path &lt;- factor(paste(mov$from, \"→\", mov$to),\n                   levels = unique(paste(mov$from, \"→\", mov$to)[order(mov$move != \"No change\", mov$from)]))\nggplot(mov, aes(path, Freq, fill = move)) +\n  geom_col(width = 0.65) +\n  geom_text(aes(label = Freq), vjust = -0.4, size = 3.8) +\n  scale_fill_manual(values = c(\"No change\" = unname(okabe_ito[\"grey\"]),\n                               \"Moves down\" = unname(okabe_ito[\"blue\"]),\n                               \"Moves up\" = unname(okabe_ito[\"vermillion\"]))) +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +\n  labs(x = \"Tier under raw → calibrated scores\", y = \"Number of vendors\", fill = NULL)\n\n\n\n\n\n\n\n\nFigure 2: Vendors by risk tier under raw versus calibrated scores (Low &lt;1%, Medium 1–3%, High &gt;3% monthly probability; illustrative thresholds).\n\n\n\n\n\n\nHow to read the plot. Vendors are placed in Low, Medium or High risk tiers using their average score over months 31 to 48. Each bar counts vendors by their tier before and after adjustment, for example “Medium → Low”. Blue bars are vendors moving to a lower tier.\nWhat the plot tells you. Most vendors, 279 of 300, stay where they are. All 21 that move go down, none up. The model’s excess confidence mostly inflated vendors at the top of its ranking. The tier thresholds are illustrative, so the exact counts would shift with other cut-offs.",
+    "crumbs": [
+      "Calibration"
+    ]
+  },
+  {
+    "objectID": "calibration.html#so-what",
+    "href": "calibration.html#so-what",
+    "title": "Question 1: Are Its Probabilities Honest?",
+    "section": "So what",
+    "text": "So what\nThe vendor’s calibration claim does not hold cleanly for NorthPoint’s own outcomes. The largest overstatement sits where decisions matter most, with the highest-risk vendors, which the guidance’s outcomes analysis (§V) is meant to catch. Recalibration is a legitimate overlay (§VII) because the bank adjusts the output and leaves the vendor’s code alone. But it is not a one-off fix: it needs refreshing as conditions move, and it inherits the limits of the data used to fit it.\nThis is partial validation. It shows that the scores are miscalibrated; it cannot say why, and it cannot tell us whether the proprietary method is conceptually sound.",
+    "crumbs": [
+      "Calibration"
+    ]
+  },
+  {
+    "objectID": "calibration.html#committee-action",
+    "href": "calibration.html#committee-action",
+    "title": "Question 1: Are Its Probabilities Honest?",
+    "section": "Committee action",
+    "text": "Committee action\nSound practice suggests including a reliability diagram in every validation pack, and setting explicit calibration thresholds that trigger recalibration, with a scheduled refit of any overlay. The April 2026 interagency Supervisory Guidance on Model Risk Management leaves the thresholds to the bank’s judgement.",
+    "crumbs": [
+      "Calibration"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Three Questions for Any Risk Model",
+    "section": "",
+    "text": "Your bank pays a vendor for a number. Every month, a model called VendorScore hands NorthPoint Bank a risk score for each of its 300 third-party vendors. Nobody at the bank can see the code, the training data, or the method. The scores simply arrive, and decisions follow them.\nHow do you validate something you cannot open? This series shows that a great deal can be learned from the outside, using only the scores and what happens afterwards. It also shows where outside testing stops.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#hook",
+    "href": "index.html#hook",
+    "title": "Three Questions for Any Risk Model",
+    "section": "",
+    "text": "Your bank pays a vendor for a number. Every month, a model called VendorScore hands NorthPoint Bank a risk score for each of its 300 third-party vendors. Nobody at the bank can see the code, the training data, or the method. The scores simply arrive, and decisions follow them.\nHow do you validate something you cannot open? This series shows that a great deal can be learned from the outside, using only the scores and what happens afterwards. It also shows where outside testing stops.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#the-three-questions",
+    "href": "index.html#the-three-questions",
+    "title": "Three Questions for Any Risk Model",
+    "section": "The three questions",
+    "text": "The three questions\nThe April 2026 interagency Supervisory Guidance on Model Risk Management (Federal Reserve, FDIC, OCC) is explicitly non-prescriptive. We read it as describing sound practice, not rules. Three questions follow from it, and each one works on any risk model, whether bought or built.\n\nAre its probabilities honest? When the model says 10%, do incidents happen about 10% of the time? This is calibration, tested with the probcal package (Page 2).\nDoes it beat a simple model? A sophisticated model should outperform a plain 12-month average, and keep doing so when conditions change. This is forecast dominance, tested with forecastdom (Page 3).\nWould its headline finding survive a push? Some findings collapse under a small change of method or data. This is fragility, tested with falsifyr (Page 4).\n\n\n\n\n\n\n\nFigure 1: Each test is tied to a question and to the decision it protects.\n\n\n\n\nHow to read the plot. Each of the three columns is one question. Reading down a column, you see the question, the test used to answer it, and the decision that test protects.\nWhat the plot tells you. The three tests are not interchangeable: each guards a different business decision. A model can pass one and fail another, so a validation that runs only one test leaves two decisions unprotected.\n\n\n\n\n\n\n\nNoteMateriality box (illustrative ratings)\n\n\n\nGuidance factors for judging how much validation a model deserves:\n\nInherent risk: high. Scores drive vendor oversight where vendors hold client data.\nExposure: broad. The score covers the whole portfolio of 300 vendors.\nPurpose: consequential. Scores inform monitoring intensity and contract terms.\n\nConclusion: full validation is warranted.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#the-case",
+    "href": "index.html#the-case",
+    "title": "Three Questions for Any Risk Model",
+    "section": "The case",
+    "text": "The case\nNorthPoint Bank is a fictional regional bank with about $45 billion in assets. The guidance targets banks above $30 billion; asset managers and fintechs can adopt the same practices voluntarily.\nAll four pages share one synthetic dataset: 14400 vendor-months (300 vendors over 48 months, January 2022 to December 2025), with 209 observed incidents, or 1.45% of vendor-months. Because the data are simulated, we also know each vendor-month’s true incident probability, and we use it only as a reference standard. The models under test never see it. Everything is reproducible from seed 34.\nA fictional vendor, RiskMetric Systems, supplies VendorScore. It trained on months 1 to 30. NorthPoint evaluates it on months 31 to 48, a period that includes a deterioration in vendors’ patching speed after month 36.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#the-black-box-problem",
+    "href": "index.html#the-black-box-problem",
+    "title": "Three Questions for Any Risk Model",
+    "section": "The black-box problem",
+    "text": "The black-box problem\nGuidance on vendor products (§VII) recognises that a bank may lack access to a vendor model’s inner workings. The vendor’s summary offers only a claim of “ensemble machine learning on proprietary threat intelligence,” an AUC of 0.81 “on vendor development data,” and the assertion that scores are “well-calibrated.” The bank can test none of this directly.\nWhat the bank does have is its own outcomes. Testing scores against outcomes is partial validation only. It cannot confirm that the proprietary model is conceptually sound; that depends on what the vendor discloses. Each page repeats this limit, and so should any committee that relies on these results.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-read-this-series",
+    "href": "index.html#how-to-read-this-series",
+    "title": "Three Questions for Any Risk Model",
+    "section": "How to read this series",
+    "text": "How to read this series\nPages 2 to 4 share one structure: the question, the method in brief, the findings, what they mean for the bank, and one committee action phrased as “sound practice suggests…”. The expected findings were written as hypotheses before any analysis ran. Where a result differs from the hypothesis, the text reports the result.\nCode is folded by default; click “Show the code” to see it. Page 4 closes with a scorecard that gathers the measured results from all three tests.",
+    "crumbs": [
+      "Overview"
+    ]
+  },
+  {
+    "objectID": "forecast.html",
+    "href": "forecast.html",
+    "title": "Question 2: Does It Beat a Simple Model?",
+    "section": "",
+    "text": "A sophisticated model earns its fee only if it beats a plain alternative. NorthPoint’s plain alternative is a 12-month rolling average of past incident counts. The question: does VendorScore forecast the bank’s monthly incident total better than that average, and does any advantage survive the deterioration in vendor patching after month 36?",
+    "crumbs": [
+      "Forecast"
+    ]
+  },
+  {
+    "objectID": "forecast.html#the-question",
+    "href": "forecast.html#the-question",
+    "title": "Question 2: Does It Beat a Simple Model?",
+    "section": "",
+    "text": "A sophisticated model earns its fee only if it beats a plain alternative. NorthPoint’s plain alternative is a 12-month rolling average of past incident counts. The question: does VendorScore forecast the bank’s monthly incident total better than that average, and does any advantage survive the deterioration in vendor patching after month 36?",
+    "crumbs": [
+      "Forecast"
+    ]
+  },
+  {
+    "objectID": "forecast.html#method-in-brief",
+    "href": "forecast.html#method-in-brief",
+    "title": "Question 2: Does It Beat a Simple Model?",
+    "section": "Method in brief",
+    "text": "Method in brief\nEach month, VendorScore’s portfolio forecast is the sum of its 300 vendor scores. The benchmark is the average of the previous 12 months’ actual incident counts, computed so that month t uses only months before t. We compare both with actual incident totals over months 31 to 48, an out-of-sample, out-of-time window.\nWe summarise accuracy with mean squared error (MSE) and mean absolute error (MAE), and test equal accuracy with a Diebold–Mariano test using the Harvey–Leybourne–Newbold small-sample correction, from the forecastdom package. We run it twice: over months 31 to 48, and over months 37 to 48 only, after the shift. Rival approaches, such as encompassing tests or superior-predictive-ability tests, ask related questions but need longer series.",
+    "crumbs": [
+      "Forecast"
+    ]
+  },
+  {
+    "objectID": "forecast.html#findings",
+    "href": "forecast.html#findings",
+    "title": "Question 2: Does It Beat a Simple Model?",
+    "section": "Findings",
+    "text": "Findings\n\n\nShow the code\nggplot(long, aes(month, value, colour = series, linetype = series)) +\n  geom_vline(xintercept = fc$shift_month, colour = \"grey50\", linetype = \"dotted\") +\n  geom_line(linewidth = 0.9) +\n  geom_point(data = subset(long, series == \"Actual incidents\"), size = 2) +\n  scale_colour_manual(values = c(\"Actual incidents\" = okabe_ito[[\"blue\"]],\n                                 \"VendorScore forecast\" = okabe_ito[[\"orange\"]],\n                                 \"12-month average\" = okabe_ito[[\"grey\"]])) +\n  scale_linetype_manual(values = c(\"Actual incidents\" = \"solid\",\n                                   \"VendorScore forecast\" = \"solid\",\n                                   \"12-month average\" = \"longdash\")) +\n  labs(x = \"Month\", y = \"Incidents per month (portfolio)\", colour = NULL, linetype = NULL)\n\n\n\n\n\n\n\n\nFigure 1: Monthly incident totals versus both forecasts, months 31–48. The vertical line marks month 36, the last month before patching latency drifts.\n\n\n\n\n\n\nHow to read the plot. Blue dots joined by a line are the actual number of incidents across all 300 vendors each month. The orange line is what VendorScore forecast. The grey dashed line is the simple 12-month average. The dotted vertical line marks when vendor patching began to slow.\nWhat the plot tells you. Actual incidents trend upward and swing widely from month to month. The 12-month average trails the trend, forecasting too low for most of the window. VendorScore sits closer to the level of incidents but is far smoother than the actual series, so it misses most month-to-month swings. Neither forecast predicts individual spikes.\n\nBoth forecasts are too smooth to follow individual months, but they differ in level. The 12-month average under-forecast by 1.2 incidents a month on average, because it looks backwards while incidents rise. VendorScore’s average miss was 0.2.\n\n\nShow the code\nggplot(tst, aes(month, cum_diff)) +\n  geom_hline(yintercept = 0, colour = \"grey50\") +\n  geom_vline(xintercept = fc$shift_month, colour = \"grey50\", linetype = \"dotted\") +\n  geom_area(fill = okabe_ito[[\"blue\"]], alpha = 0.18) +\n  geom_line(colour = okabe_ito[[\"blue\"]], linewidth = 1) +\n  labs(x = \"Month\", y = \"Cumulative squared-error advantage\")\n\n\n\n\n\n\n\n\nFigure 2: Cumulative loss differential, months 31–48. Above zero, VendorScore has accumulated lower squared error than the 12-month average.\n\n\n\n\n\n\nHow to read the plot. Each month we ask which forecast was closer to the truth and by how much. The line keeps a running total: it rises when VendorScore wins a month, falls when the 12-month average wins, and the height is the net advantage so far.\nWhat the plot tells you. The line ends at 22.3 above zero, so VendorScore has a net advantage. It rises only 4.1 by month 36 and 18.2 more afterwards, and it climbs unevenly, with several losing months. A tidy upward line would be stronger evidence; this one is a mixed record with a favourable tilt.\n\n\n\nShow the code\ntab &lt;- data.frame(\n  Window = c(\"Months 31–48 (n = 18)\", \"Months 37–48 (n = 12)\"),\n  `MSE 12-month` = res$mse_naive, `MSE VendorScore` = res$mse_vs,\n  `MAE 12-month` = res$mae_naive, `MAE VendorScore` = res$mae_vs,\n  `DM statistic` = res$dm_stat, `p-value` = res$dm_p, check.names = FALSE)\nknitr::kable(tab, digits = c(0, 2, 2, 2, 2, 2, 3))\n\n\n\n\nTable 1: Forecast accuracy and Diebold–Mariano tests (benchmark versus VendorScore). A positive statistic favours VendorScore.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWindow\nMSE 12-month\nMSE VendorScore\nMAE 12-month\nMAE VendorScore\nDM statistic\np-value\n\n\n\n\nMonths 31–48 (n = 18)\n5.67\n4.44\n1.80\n1.61\n1.23\n0.235\n\n\nMonths 37–48 (n = 12)\n7.59\n6.08\n2.08\n2.03\n1.07\n0.309\n\n\n\n\n\n\n\n\n\nHow to read the table. Each row is a stretch of months. Error columns show the typical miss in incidents per month for each forecast, so smaller is better. MSE punishes large misses more heavily than MAE does. The last two columns test whether the gap is real or could be luck: a small p-value (below 0.05) means luck is an unlikely explanation.\nWhat the table tells you. VendorScore has lower errors in both windows, but p-values of 0.235 and 0.309 are well above 0.05. Eighteen months, and twelve after the shift, are too few to separate a modest edge from chance. The result is “no detectable advantage,” not proof that the two are equal.\n\nVendorScore’s MSE is 22% lower over the full window and 20% lower after the shift. The MAE advantage is smaller, and after the shift almost vanishes (2.03 versus 2.08). A non-significant test with n = 18 has low power, so it means no detectable advantage, not equality. The pre-shift record is also thin: months 31 to 36 contribute only six observations.\nThe vendor’s AUC of 0.81 is measured on its own development data. It cannot show that VendorScore stays reliable at this bank after conditions change. As a rough check, NorthPoint’s own outcomes give an AUC of 0.72 over months 31 to 48: 0.77 for months 31 to 36 and 0.70 afterwards. These come with no interval and few incidents, so a drop of a few points could be noise. Only ongoing monitoring at the bank can answer the question (§VII).",
+    "crumbs": [
+      "Forecast"
+    ]
+  },
+  {
+    "objectID": "forecast.html#so-what",
+    "href": "forecast.html#so-what",
+    "title": "Question 2: Does It Beat a Simple Model?",
+    "section": "So what",
+    "text": "So what\nOn this evidence, VendorScore gets the level of incidents roughly right and the simple benchmark does not, but the advantage is statistically unproven and concentrated in a period when the benchmark lagged a rising trend. The comparison is about aggregate counts, not about whether individual vendors are ranked correctly.\nThe April 2026 interagency Supervisory Guidance on Model Risk Management treats out-of-sample and out-of-time testing and benchmarking as part of model testing (§IV) and ongoing monitoring (§V). The cumulative-differential chart is the kind of metric that fits there: it turns “is the model still earning its place?” into a line a committee can watch. This is partial validation: it tests outputs, not the proprietary method.",
+    "crumbs": [
+      "Forecast"
+    ]
+  },
+  {
+    "objectID": "forecast.html#committee-action",
+    "href": "forecast.html#committee-action",
+    "title": "Question 2: Does It Beat a Simple Model?",
+    "section": "Committee action",
+    "text": "Committee action\nSound practice suggests benchmarking every vendor model against a named simple alternative, out of sample and out of time, and adding the loss differential to ongoing monitoring so that deterioration triggers review.",
+    "crumbs": [
+      "Forecast"
+    ]
+  }
+]

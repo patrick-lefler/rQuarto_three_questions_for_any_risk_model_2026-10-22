@@ -1,0 +1,10 @@
+_freeze/
+.quarto/
+.Rproj.user/
+.Rhistory
+.DS_Store
+renv/library/
+*.knit.md
+
+/.quarto/
+**/*.quarto_ipynb

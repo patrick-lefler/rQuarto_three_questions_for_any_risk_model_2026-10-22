@@ -1,0 +1,9 @@
+== probcal 0.2.0 — isotonic + Platt calibrators, ECE, Brier
+OK. Eval window ECE raw 0.0072, isotonic 0.0083, Platt 0.0096; Brier raw 0.01914, isotonic 0.01863, Platt 0.01916. Decision: USE probcal.
+
+== forecastdom 0.1.0 — Diebold-Mariano with HLN small-sample correction, n = 18
+OK. DM statistic 1.230, p = 0.235, n = 18 (e1 = naive benchmark, e2 = VendorScore). Decision: USE forecastdom.
+
+== falsifyr 1.0.0 — smallest-kill analysis of the no_soc2 coefficient
+RUNS, but verdict RESILIENT, smallest kill none found over 20 attacks. Its p-values are not vendor-clustered (cluster only groups row deletion) and it cannot add the omitted confounder vendor_size. Decision: USE falsifyr for within-model perturbations; the pre-registered kill (clustered SEs, adding vendor_size) is a hand-built loop. Footnote the split on page 4.
+
