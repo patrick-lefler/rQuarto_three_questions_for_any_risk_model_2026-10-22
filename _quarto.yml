@@ -6,11 +6,19 @@ project:
     - calibration.qmd
     - forecast.qmd
     - fragility.qmd
+    - reproducibility.qmd
 
 website:
-  title: "Trust, but Verify: Validating a Vendor Risk Model You Can't See Inside"
+  title: "Three Questions for Any Risk Model"
+  page-navigation: true
+  repo-url: https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22
+  repo-actions: [source]
   sidebar:
     style: docked
+    tools:
+      - icon: github
+        href: https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22
+        text: Source code
     contents:
       - href: index.qmd
         text: Overview
@@ -20,6 +28,19 @@ website:
         text: Forecast
       - href: fragility.qmd
         text: Fragility
+      - href: reproducibility.qmd
+        text: Reproducibility
+  page-footer:
+    left: "Synthetic case study: all data are simulated."
+    right:
+      - text: "Seeking Eureka projects"
+        href: https://seeking-eureka.com/projects.html
+      - text: "Source code"
+        href: https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22
+
+author: "Patrick Lefler"
+date: last-modified
+date-format: "MMMM D, YYYY"
 
 format:
   html:

@@ -1,35 +1,28 @@
-# Prose word-count checker. Strips YAML, code chunks and chunk options from
-# each page, plus the reader-note divs (.reader-note, outside the budget); captions in #| fig-cap / tbl-cap lines count toward the budget.
-# Run from the project root: Rscript R/word_count.R. Exits 1 if total > 4000.
+# Reader-visible word count from the RENDERED pages (docs/*.html).
+# Counts everything in the main content: title block, paragraphs, lists,
+# headings, reader notes, table text, captions, callouts (including collapsed
+# ones) and footnotes, with inline results as rendered. Excludes navigation
+# chrome and folded source code. Run from the project root after quarto render:
+#   Rscript R/word_count.R
+# Exits 1 if the total exceeds 4,000 words. Writes data/word_count.csv.
 
-budget <- c("index.qmd" = 750, "calibration.qmd" = 1000,
-            "forecast.qmd" = 1000, "fragility.qmd" = 1000)
-CEILING <- 4000
+library(xml2)
+CEILING <- 4000; TARGET <- c(3500, 3750)
+pages <- c("index", "calibration", "forecast", "fragility", "reproducibility")
 
-count_words <- function(path) {
-  x <- readLines(path, warn = FALSE)
-  fence <- grepl("^```", x)
-  in_code <- cumsum(fence) %% 2 == 1 | fence
-  yaml <- cumsum(x == "---") == 1 & x != "---"
-  open <- grepl("^:::\\s*\\{[^}]*reader-note", x)
-  in_note <- logical(length(x)); on <- FALSE
-  for (i in seq_along(x)) {
-    if (open[i]) on <- TRUE
-    in_note[i] <- on
-    if (on && !open[i] && grepl("^:::\\s*$", x[i])) on <- FALSE
-  }
-  caps <- x[in_code & grepl("^#\\|\\s*(fig|tbl)-cap:", x)]
-  caps <- sub("^#\\|\\s*(fig|tbl)-cap:\\s*", "", caps)
-  prose <- x[!in_code & !in_note & !yaml & x != "---"]
-  txt <- c(prose, caps)
-  txt <- gsub("\\{[#.:][^}]*\\}|<[^>]+>|\\[|\\]\\([^)]*\\)|[#*_>|`]", " ", txt)
-  length(strsplit(paste(txt, collapse = " "), "\\s+")[[1]][nzchar(strsplit(paste(txt, collapse = " "), "\\s+")[[1]])])
+count_page <- function(p) {
+  doc <- read_html(file.path("docs", paste0(p, ".html")))
+  main <- xml_find_first(doc, "//main[@id='quarto-document-content']")
+  drop <- xml_find_all(main, ".//details[contains(@class,'code-fold')] | .//script | .//style | .//div[contains(@class,'sourceCode')]")
+  xml_remove(drop)
+  txt <- xml_text(main)
+  words <- strsplit(trimws(gsub("\\s+", " ", txt)), " ")[[1]]
+  length(words[nzchar(words)])
 }
-
-pages <- names(budget)[file.exists(names(budget))]
-counts <- vapply(pages, count_words, integer(1))
-tab <- data.frame(page = pages, words = counts, budget = budget[pages], row.names = NULL)
+counts <- vapply(pages, count_page, integer(1))
+tab <- data.frame(page = paste0(pages, ".qmd"), words = counts, row.names = NULL)
 print(tab)
 total <- sum(counts)
-cat(sprintf("Total: %d (target 3750, ceiling %d)\n", total, CEILING))
+cat(sprintf("Total: %d (target %d-%d, ceiling %d)\n", total, TARGET[1], TARGET[2], CEILING))
+write.csv(rbind(tab, data.frame(page = "total", words = total)), "data/word_count.csv", row.names = FALSE)
 if (total > CEILING) quit(status = 1)

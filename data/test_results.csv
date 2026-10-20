@@ -1,0 +1,3 @@
+"suite","script","checks_passed","status"
+"simulation","tests/test_simulate.R",34,"passed"
+"artifacts","tests/test_fit_models.R",72,"passed"

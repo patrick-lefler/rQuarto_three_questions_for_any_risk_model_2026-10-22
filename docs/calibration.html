@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Patrick Lefler">
+<meta name="dcterms.date" content="2026-10-20">
 
-<title>Question 1: Are Its Probabilities Honest? – Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside</title>
+<title>Question 1: Are Its Probabilities Honest? – Three Questions for Any Risk Model</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,6 +67,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./forecast.html" rel="next">
+<link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -75,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-bfff32527affdc50e3fbb4fc133dc921.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-2ca19d6521e1ca6457e32fd772feae37.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -131,7 +135,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside</a> 
+      <a href="./">Three Questions for Any Risk Model</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" title="Source code" class="quarto-navigation-tool px-1" aria-label="Source code"><i class="bi bi-github"></i></a>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -165,6 +172,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Fragility</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reproducibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reproducibility</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -181,7 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So what</a></li>
   <li><a href="#committee-action" id="toc-committee-action" class="nav-link" data-scroll-target="#committee-action">Committee action</a></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/calibration.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -195,7 +208,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Patrick Lefler </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 20, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -207,110 +232,124 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="the-question" class="level2">
 <h2 class="anchored" data-anchor-id="the-question">The question</h2>
-<p>When VendorScore says a vendor has a 10% chance of an incident, do incidents happen about 10% of the time? RiskMetric Systems asserts that its scores are “well-calibrated.” NorthPoint cannot inspect the model, but it can compare the scores with what happened. Here we test the claim on months 31 to 48, which the vendor never saw.</p>
+<p>When VendorScore says a vendor has a 10% chance of an incident, do incidents happen about 10% of the time? RiskMetric Systems asserts that its scores are “well-calibrated.” NorthPoint cannot inspect the model, but it can compare the scores with what happened, and it can test whether a recalibration overlay would help.</p>
 </section>
 <section id="method-in-brief" class="level2">
 <h2 class="anchored" data-anchor-id="method-in-brief">Method in brief</h2>
-<p>We sort the 5,400 evaluation-window vendor-months into ten equal-sized groups by score, then compare each group’s average score with its observed incident rate. That comparison is a <em>reliability diagram</em>. We summarise it with the Brier score (average squared error of the probabilities; lower is better) and the expected calibration error, ECE (the average gap between score and outcome across groups). A kernel calibration test asks whether the gaps are larger than chance would produce.</p>
-<p>To repair the scores without touching the vendor’s code, we fit an isotonic regression (a monotone step-function mapping) that converts raw scores into calibrated ones. It is fit on months 1 to 30 only, so every number below comes from months 31 to 48, which the calibrator never saw. Platt scaling, a smoother alternative, is in the table. Both come from the <code>probcal</code> package.</p>
+<p>Three non-overlapping windows keep the tests honest. VendorScore trained on months 1 to 30 (the vendor’s business). We fitted the overlay on months 31 to 36 (1,800 vendor-months, 28 incidents), so the classifier had not trained on those rows. Every result below comes from months 37 to 48 (3,600 vendor-months, 75 incidents, 300 vendors), which nothing was fitted or selected on.</p>
+<p>We fixed the methods before looking at that window: an isotonic overlay (a monotone curve, interpolated between fitted points), and a Platt overlay (a logistic curve on the logit of the score) as secondary. Both come from <code>probcal</code>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The Brier score measures overall probability error, so it reflects more than calibration. The expected calibration error (ECE) is the weighted average gap between score and outcome across ten score groups; it depends on how groups are formed, so we show equal-size and equal-width groups. Uncertainty comes from resampling whole vendor histories (1,000 draws), because the same vendors recur every month. Intervals condition on the fitted overlay and leave out overlay-fitting uncertainty.</p>
 </section>
 <section id="findings" class="level2">
 <h2 class="anchored" data-anchor-id="findings">Findings</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rel, <span class="fu">aes</span>(predicted, observed, <span class="at">colour =</span> score, <span class="at">shape =</span> score)) <span class="sc">+</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> cal<span class="sc">$</span>base_rate_true, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> low, <span class="at">ymax =</span> high), <span class="at">width =</span> <span class="fl">0.04</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.6</span>) <span class="sc">+</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="fl">0.1</span>)) <span class="sc">+</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">unname</span>(okabe_ito[<span class="fu">c</span>(<span class="st">"vermillion"</span>, <span class="st">"blue"</span>)])) <span class="sc">+</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Average predicted probability (log scale)"</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Observed incident rate (log scale)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>, <span class="at">shape =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>rel2 <span class="ot">&lt;-</span> rel[rel<span class="sc">$</span>score <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Raw VendorScore"</span>, <span class="st">"Isotonic overlay"</span>), ]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>rel2<span class="sc">$</span>score <span class="ot">&lt;-</span> <span class="fu">factor</span>(rel2<span class="sc">$</span>score, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Raw VendorScore"</span>, <span class="st">"Isotonic overlay"</span>))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>brk <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.01</span>, <span class="fl">0.02</span>, <span class="fl">0.05</span>, <span class="fl">0.10</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(rel2, <span class="fu">aes</span>(predicted, observed)) <span class="sc">+</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> low, <span class="at">ymax =</span> high, <span class="at">colour =</span> score), <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> score), <span class="at">size =</span> <span class="fl">2.6</span>) <span class="sc">+</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">y =</span> true_mean), <span class="at">shape =</span> <span class="dv">5</span>, <span class="at">colour =</span> <span class="st">"grey25"</span>, <span class="at">size =</span> <span class="fl">2.4</span>) <span class="sc">+</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>score) <span class="sc">+</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_sqrt</span>(<span class="at">breaks =</span> brk, <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.12</span>)) <span class="sc">+</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_sqrt</span>(<span class="at">breaks =</span> brk, <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_percent</span>(<span class="at">accuracy =</span> <span class="dv">1</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.12</span>)) <span class="sc">+</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">unname</span>(okabe_ito[<span class="fu">c</span>(<span class="st">"vermillion"</span>, <span class="st">"blue"</span>)]), <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Average predicted probability (square-root scale)"</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Observed incident rate (square-root scale)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-reliability" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Predicted versus observed incident rate on log axes for raw and isotonic-calibrated scores, with a diagonal and a horizontal reference line.">
+<div id="fig-reliability" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Two panels, raw and isotonic-overlay scores, plotting observed incident rate against predicted probability on a square-root scale with a diagonal. Raw top group lies below the diagonal.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-reliability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="calibration_files/figure-html/fig-reliability-1.png" class="img-fluid figure-img" alt="Predicted versus observed incident rate on log axes for raw and isotonic-calibrated scores, with a diagonal and a horizontal reference line." width="672">
+<img src="calibration_files/figure-html/fig-reliability-1.png" class="img-fluid figure-img" alt="Two panels, raw and isotonic-overlay scores, plotting observed incident rate against predicted probability on a square-root scale with a diagonal. Raw top group lies below the diagonal." width="720">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-reliability-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Reliability diagram, months 31–48. Points are score deciles with 95% intervals; dashed line is the true average incident rate.
+Figure&nbsp;1: Reliability diagram, months 37–48. Filled points: observed rate with vendor-clustered 95% intervals. Open diamonds: mean true probability in the group.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the plot.</strong> Each dot groups vendor-months with similar scores. Left to right is what the model predicted; bottom to top is what actually happened. A dot on the grey diagonal means the model was right on average. The lines through each dot show the range of plausible outcomes, given that incidents are rare.</p>
-<p><strong>What the plot tells you.</strong> The highest-scored group sits below the diagonal: the model said about 10.5%, and 7.0% of those vendor-months had an incident. Most lower-scored groups sit above the diagonal, so the model understated their risk. With only about 100 incidents, the intervals are wide. The pattern is suggestive but not conclusive for any single group.</p>
+<p><strong>How to read the plot.</strong> Each dot groups vendor-months with similar scores: left to right is the prediction, bottom to top is what happened. A dot on the grey diagonal means the model was right on average. The vertical line is a plausible range; the open diamond is the true average risk, known only because the data are simulated.</p>
+<p><strong>What the plot tells you.</strong> In the raw panel, the top group is the clearest miss. Only 75 incidents lie behind these dots, so single-group intervals are wide.</p>
 </div>
-<p>The raw scores are overconfident at both ends. The top-scored group was told it faced a 10.5% risk, but its observed rate was 7.0%, with an interval (5.0% to 9.5%) that excludes the prediction. In 8 of 10 groups the observed rate exceeded the score, mostly the low-scored ones. The kernel test rejects “well-calibrated” (p = 0.026), though with this few incidents we read that as moderate evidence, not proof.</p>
-<p>At the portfolio level the picture is kinder: raw scores imply 5.5 incidents a month, against 5.7 observed.</p>
+<p>The raw top-scored group was told it faced 10.8%; 6.9% had an incident (interval 4.5% to 9.5%), and its true average risk was 5.2%. The observed rate exceeded the score in 8 of 10 groups, mostly low-scored ones. These intervals are pointwise, so they do not amount to a global test. The isotonic overlay collapses tied scores into 5 distinct groups, not ten.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> met[, <span class="fu">c</span>(<span class="st">"method"</span>, <span class="st">"brier"</span>, <span class="st">"ece_mass"</span>, <span class="st">"ece_width"</span>, <span class="st">"expected_per_month"</span>)]</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">rbind</span>(tab, <span class="fu">data.frame</span>(<span class="at">method =</span> <span class="st">"Observed"</span>, <span class="at">brier =</span> <span class="cn">NA</span>, <span class="at">ece_mass =</span> <span class="cn">NA</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">ece_width =</span> <span class="cn">NA</span>, <span class="at">expected_per_month =</span> cal<span class="sc">$</span>observed_per_month))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tab, <span class="at">digits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">1</span>), <span class="at">na =</span> <span class="st">"—"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Scores"</span>, <span class="st">"Brier"</span>, <span class="st">"ECE (equal-size groups)"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"ECE (equal-width groups)"</span>, <span class="st">"Incidents per month"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Scores =</span> <span class="fu">c</span>(<span class="st">"Raw VendorScore"</span>, <span class="st">"Isotonic overlay"</span>, <span class="st">"Platt overlay (logit scale)"</span>, <span class="st">"Observed"</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Brier =</span> <span class="fu">c</span>(<span class="fu">sprintf</span>(<span class="st">"%.5f"</span>, pt[, <span class="st">"brier"</span>]), <span class="st">"—"</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Brier change vs raw</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"—"</span>, <span class="fu">dif</span>(<span class="st">"Isotonic overlay"</span>, <span class="st">"brier"</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">dif</span>(<span class="st">"Platt overlay (logit scale)"</span>, <span class="st">"brier"</span>), <span class="st">"—"</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">ECE, equal-size groups</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">sprintf</span>(<span class="st">"%.4f"</span>, pt[, <span class="st">"ece_mass"</span>]), <span class="st">"—"</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">ECE, equal-width groups</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">sprintf</span>(<span class="st">"%.4f"</span>, pt[, <span class="st">"ece_width"</span>]), <span class="st">"—"</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Incidents per month</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">sprintf</span>(<span class="st">"%.1f"</span>, pt[, <span class="st">"expected_per_month"</span>]),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">sprintf</span>(<span class="st">"%.1f"</span>, cal<span class="sc">$</span>observed_per_month)),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(tab, <span class="at">align =</span> <span class="st">"lrrrrr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="tbl-metrics" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Calibration metrics, months 31–48. Lower Brier and ECE are better; the last column compares with observed incidents per month.
+Table&nbsp;1: Calibration metrics, months 37–48. Changes are versus raw scores, with vendor-clustered 95% intervals.
 </figcaption>
 <div aria-describedby="tbl-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 20%">
-<col style="width: 7%">
-<col style="width: 25%">
-<col style="width: 26%">
-<col style="width: 20%">
+<col style="width: 5%">
+<col style="width: 23%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 14%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Scores</th>
 <th style="text-align: right;">Brier</th>
-<th style="text-align: right;">ECE (equal-size groups)</th>
-<th style="text-align: right;">ECE (equal-width groups)</th>
+<th style="text-align: right;">Brier change vs raw</th>
+<th style="text-align: right;">ECE, equal-size groups</th>
+<th style="text-align: right;">ECE, equal-width groups</th>
 <th style="text-align: right;">Incidents per month</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Raw VendorScore</td>
-<td style="text-align: right;">0.0191</td>
-<td style="text-align: right;">0.0079</td>
-<td style="text-align: right;">0.0072</td>
-<td style="text-align: right;">5.5</td>
+<td style="text-align: right;">0.02107</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">0.0105</td>
+<td style="text-align: right;">0.0086</td>
+<td style="text-align: right;">5.7</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Isotonic-calibrated</td>
-<td style="text-align: right;">0.0186</td>
-<td style="text-align: right;">0.0065</td>
-<td style="text-align: right;">0.0083</td>
-<td style="text-align: right;">4.0</td>
+<td style="text-align: left;">Isotonic overlay</td>
+<td style="text-align: right;">0.02081</td>
+<td style="text-align: right;">−0.00026 (−0.00064 to 0.00004)</td>
+<td style="text-align: right;">0.0068</td>
+<td style="text-align: right;">0.0066</td>
+<td style="text-align: right;">5.3</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Platt-calibrated</td>
-<td style="text-align: right;">0.0192</td>
-<td style="text-align: right;">0.0082</td>
-<td style="text-align: right;">0.0096</td>
-<td style="text-align: right;">3.6</td>
+<td style="text-align: left;">Platt overlay (logit scale)</td>
+<td style="text-align: right;">0.02025</td>
+<td style="text-align: right;">−0.00082 (−0.00196 to −0.00003)</td>
+<td style="text-align: right;">0.0052</td>
+<td style="text-align: right;">0.0052</td>
+<td style="text-align: right;">5.2</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Observed</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">NA</td>
-<td style="text-align: right;">5.7</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">6.2</td>
 </tr>
 </tbody>
 </table>
@@ -320,10 +359,10 @@ Table&nbsp;1: Calibration metrics, months 31–48. Lower Brier and ECE are bette
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the table.</strong> Each row is a version of the scores: the vendor’s raw output, two adjusted versions, and the actual count. Smaller Brier and ECE numbers mean more honest probabilities. ECE is shown with two common ways of grouping scores, because the choice matters. The last column is the number of incidents the scores imply each month.</p>
-<p><strong>What the table tells you.</strong> Isotonic adjustment lowers the Brier score slightly and lowers ECE with equal-size groups, but raises it with equal-width groups, so the two ECE versions disagree. Re-sampling vendors, the Brier change is -4.8 in units of 0.0001, with an interval of -13.0 to 0.2: close to zero. The adjusted scores also imply only 4.0 incidents a month, well below the 5.7 observed.</p>
+<p><strong>How to read the table.</strong> Each row is a version of the scores; the last row is the actual count. Smaller Brier and ECE are better. The “change” column shows how each overlay moves Brier versus raw scores, with a plausible range in brackets. The last column is the incidents per month the scores imply.</p>
+<p><strong>What the table tells you.</strong> Both overlays lower Brier slightly, but the isotonic range includes zero and the Platt range only just excludes it. 3 of the 4 ECE changes have ranges that include zero. All three score versions imply fewer incidents (5.2 to 5.7 a month) than the 6.2 observed.</p>
 </div>
-<p>Recalibration helps less than hoped. The improvement in Brier score is small, its interval reaches zero, and ECE moves in opposite directions depending on how groups are formed. Worse, the adjusted scores undercount incidents by about 30%. The calibrator learned the months 1 to 30 base rate, but incidents rose afterwards (Page 3), so a mapping fit on older data goes stale.</p>
+<p>Overlay gains are small and statistically unclear. The raw count of 5.7 incidents a month is closest to what was observed. The true probabilities imply only 5.1, so some shortfall is chance. Changing vendor mix, thin calibration data and a six-month fitting window may all contribute; this exercise does not isolate them.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -337,39 +376,60 @@ Table&nbsp;1: Calibration metrics, months 31–48. Lower Brier and ECE are bette
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"Moves down"</span> <span class="ot">=</span> <span class="fu">unname</span>(okabe_ito[<span class="st">"blue"</span>]),</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                               <span class="st">"Moves up"</span> <span class="ot">=</span> <span class="fu">unname</span>(okabe_ito[<span class="st">"vermillion"</span>]))) <span class="sc">+</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.12</span>))) <span class="sc">+</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Tier under raw → calibrated scores"</span>, <span class="at">y =</span> <span class="st">"Number of vendors"</span>, <span class="at">fill =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Risk band under raw → overlay scores"</span>, <span class="at">y =</span> <span class="st">"Number of vendors"</span>, <span class="at">fill =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-tiers" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart counting vendors that keep or change risk tier after isotonic calibration.">
+<div id="fig-bands" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Bar chart counting vendors that keep or change risk band under the isotonic overlay.">
 <figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-tiers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="calibration_files/figure-html/fig-tiers-1.png" class="img-fluid figure-img" alt="Bar chart counting vendors that keep or change risk tier after isotonic calibration." width="672">
+<div aria-describedby="fig-bands-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="calibration_files/figure-html/fig-bands-1.png" class="img-fluid figure-img" alt="Bar chart counting vendors that keep or change risk band under the isotonic overlay." width="672">
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-tiers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Vendors by risk tier under raw versus calibrated scores (Low &lt;1%, Medium 1–3%, High &gt;3% monthly probability; illustrative thresholds).
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bands-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Vendors by risk band, raw versus isotonic-overlay scores (Low &lt;1%, Medium 1–&lt;3%, High ≥3% monthly probability; illustrative). A retrospective illustration.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the plot.</strong> Vendors are placed in Low, Medium or High risk tiers using their average score over months 31 to 48. Each bar counts vendors by their tier before and after adjustment, for example “Medium → Low”. Blue bars are vendors moving to a lower tier.</p>
-<p><strong>What the plot tells you.</strong> Most vendors, 279 of 300, stay where they are. All 21 that move go down, none up. The model’s excess confidence mostly inflated vendors at the top of its ranking. The tier thresholds are illustrative, so the exact counts would shift with other cut-offs.</p>
+<p><strong>How to read the plot.</strong> Vendors are put in Low, Medium or High risk bands using their average score over months 37 to 48. These bands are separate from the criticality tiers of vendors. Each bar counts vendors by band before and after the overlay.</p>
+<p><strong>What the plot tells you.</strong> 238 of 300 vendors keep their band and 62 move up; none move down. This shows the overlay’s decision impact, not that the new bands are right; averaging a whole window is a retrospective device, not a monitoring rule.</p>
 </div>
 </section>
 <section id="so-what" class="level2">
 <h2 class="anchored" data-anchor-id="so-what">So what</h2>
-<p>The vendor’s calibration claim does not hold cleanly for NorthPoint’s own outcomes. The largest overstatement sits where decisions matter most, with the highest-risk vendors, which the guidance’s outcomes analysis (§V) is meant to catch. Recalibration is a legitimate overlay (§VII) because the bank adjusts the output and leaves the vendor’s code alone. But it is not a one-off fix: it needs refreshing as conditions move, and it inherits the limits of the data used to fit it.</p>
-<p>This is partial validation. It shows that the scores are miscalibrated; it cannot say why, and it cannot tell us whether the proprietary method is conceptually sound.</p>
+<p>The vendor’s calibration claim does not hold cleanly: the highest-risk group is overstated and the overlay evidence is thin. Outcomes analysis (§V) can support an overlay (§VII), but does not make one acceptable by itself. This one has not shown fitness for the use: Brier gains are small, ECE changes are mostly indistinguishable from zero, and no operational acceptance threshold was set in advance, so we do not invent one. This is a corrected retrospective demonstration, not a prospective validation, and only partial validation: it cannot say why the scores are miscalibrated or whether the proprietary method is conceptually sound.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Technical note: kernel calibration test (exploratory)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The kernel test in <code>probcal::cal_test()</code> on raw scores gives p = 0.023. It treats rows as independent although vendors recur monthly, so we do not rely on it.</p>
+</div>
+</div>
+</div>
 </section>
 <section id="committee-action" class="level2">
 <h2 class="anchored" data-anchor-id="committee-action">Committee action</h2>
-<p>Sound practice suggests including a reliability diagram in every validation pack, and setting explicit calibration thresholds that trigger recalibration, with a scheduled refit of any overlay. The April 2026 interagency <em>Supervisory Guidance on Model Risk Management</em> leaves the thresholds to the bank’s judgement.</p>
+<p>Sound practice suggests not approving the tested overlay for routine use yet: investigate the shortfall, keep the existing process under documented controls, and validate any replacement on later outcomes against tolerances set in advance. Include a reliability diagram in every validation pack. The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) refers to the bank’s own established performance thresholds (§V).</p>
 
 
 </section>
 
-</main> <!-- /main -->
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p><a href="https://cran.r-project.org/package=probcal"><code>probcal</code></a> 0.2.0: <code>cal_isotonic()</code>, <code>cal_platt()</code>, <code>ece()</code> and <code>cal_test()</code>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -770,7 +830,43 @@ Figure&nbsp;2: Vendors by risk tier under raw versus calibrated scores (Low &lt;
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="Overview">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Overview</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./forecast.html" class="pagination-link" aria-label="Forecast">
+        <span class="nav-page-text">Forecast</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Synthetic case study: all data are simulated.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/calibration.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://seeking-eureka.com/projects.html">
+<p>Seeking Eureka projects</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link active" href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" aria-current="page">
+<p>Source code</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
 
 
 

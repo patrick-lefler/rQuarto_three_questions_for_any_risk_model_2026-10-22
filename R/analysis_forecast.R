@@ -1,44 +1,49 @@
-# Page 3 computations: does VendorScore beat a 12-month rolling average?
-# Reads the cached forecasts from models.rds; nothing is refit.
+# Page 3 computations: does raw VendorScore beat a 12-month rolling average?
+# Forecast origin: START OF MONTH t. Scores use month-t covariates, assumed
+# observed at the start of month t (prior_incidents_12m covers months t-12..t-1
+# only, so no outcome leakage; see data/analysis_manifest.csv). The benchmark
+# is the mean of actual counts in months t-12..t-1. Both forecast the same
+# target month. Raw VendorScore is used: no overlay, so no fitting touches the
+# target months. Nothing is refit here.
 # Run from the project root after fit_models.R. Writes data/forecast.rds.
 
 library(forecastdom)
+source("R/windows.R")
 
 fc <- readRDS("data/models.rds")$forecast
-test <- fc[fc$month >= 31, ]
+actual <- fc$actual
+# Re-derive the benchmark independently as a causal check
+bench_check <- rolling_benchmark(actual)
+stopifnot(isTRUE(all.equal(fc$naive, bench_check)))
+
+test <- fc[fc$month %in% WINDOWS$forecast_eval, ]
 test$e_naive <- test$actual - test$naive
 test$e_vs    <- test$actual - test$vendorscore
-test$loss_diff <- test$e_naive^2 - test$e_vs^2   # > 0: VendorScore does better
-test$cum_diff  <- cumsum(test$loss_diff)
+test$loss_diff <- test$e_naive^2 - test$e_vs^2   # > 0: VendorScore has lower squared error
+test$cum_diff  <- cumsum(test$loss_diff)         # cumulative squared-incident loss
+test$forecast_origin <- "start of month"
+test$target_month <- test$month
 
+# Explicit test settings. e1 = benchmark errors, e2 = VendorScore errors, so a
+# positive statistic means lower squared loss for VendorScore. Two-sided,
+# because no direction was fixed beforehand. With h = 1 the package's variance
+# is the sample variance of the loss differential divided by n (no
+# autocorrelation adjustment); HLN small-sample correction on, t(n - 1).
+DM_ARGS <- list(h = 1L, loss = "SE", alternative = "two.sided", correction = TRUE)
 summarise_window <- function(label, lo) {
   w <- test[test$month >= lo, ]
-  dm <- dm_test(w$e_naive, w$e_vs, loss = "SE")  # e1 = benchmark, e2 = VendorScore
+  dm <- do.call(dm_test, c(list(w$e_naive, w$e_vs), DM_ARGS))
   data.frame(window = label, n = nrow(w),
              mse_naive = mean(w$e_naive^2), mse_vs = mean(w$e_vs^2),
              mae_naive = mean(abs(w$e_naive)), mae_vs = mean(abs(w$e_vs)),
              bias_naive = mean(w$e_naive), bias_vs = mean(w$e_vs),
              dm_stat = dm$statistic, dm_p = dm$pvalue)
 }
-results <- rbind(summarise_window("Months 31-48 (full test window)", 31),
-                 summarise_window("Months 37-48 (after the shift)", 37))
+results <- rbind(summarise_window("Months 31-48", 31),
+                 summarise_window("Months 37-48", 37))
 
-# Pre-shift part of the test window, for the cumulative-differential story
-pre <- test[test$month <= 36, ]
-pre_mse <- c(naive = mean(pre$e_naive^2), vendorscore = mean(pre$e_vs^2))
-
-# Bank-side discrimination check (vendor-month level) for the claimed AUC of 0.81
-auc <- function(score, y) {
-  r <- rank(score); n1 <- sum(y == 1); n0 <- sum(y == 0)
-  (sum(r[y == 1]) - n1 * (n1 + 1) / 2) / (n1 * n0)
-}
-d <- merge(read.csv("data/vendor_panel.csv")[, c("vendor_id", "month", "incident")],
-           read.csv("data/vendorscore.csv"), by = c("vendor_id", "month"))
-auc_eval <- c(all = auc(d$score_adj[d$month >= 31], d$incident[d$month >= 31]),
-              pre = auc(d$score_adj[d$month >= 31 & d$month <= 36], d$incident[d$month >= 31 & d$month <= 36]),
-              post = auc(d$score_adj[d$month >= 37], d$incident[d$month >= 37]))
-
-saveRDS(list(test = test, results = results, pre_mse = pre_mse, shift_month = 36,
-             auc_eval = auc_eval),
+saveRDS(list(test = test, results = results, shift_month = par_get("forecast", "shift_month"),
+             dm_args = DM_ARGS, window = WINDOWS$forecast_eval,
+             pkg_version = as.character(packageVersion("forecastdom"))),
         "data/forecast.rds")
 cat("analysis_forecast.R done\n")

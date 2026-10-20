@@ -1,0 +1,52 @@
+# Single register of every analysis parameter, read by the R scripts (R/params.R).
+# basis: "assumption" = a choice made by the analyst; "convention" = a standard
+# default; "planted" = a deliberate feature of the synthetic design.
+# range: values over which a sensitivity check would be reasonable (not all were run).
+# The simulator's own parameters live in R/simulate.R (validated; not edited here);
+# they are listed under `simulator` for reference only and are NOT read from this file.
+
+seed:
+  value: 34
+  basis: "assumption: selected during development from seeds 1-40 (26 of 40 pass the generator's checks)"
+  range: "1-40 (seed sweep on page 4)"
+
+windows:
+  classifier_train: {value: [1, 30],  basis: "assumption: vendor's training months",  range: "fixed by the generator's train/test split"}
+  calibration_fit:  {value: [31, 36], basis: "assumption: six months, out of sample for the classifier", range: "3-12 months"}
+  overlay_eval:     {value: [37, 48], basis: "assumption: all months remaining after the calibration window", range: "set by calibration_fit"}
+  forecast_eval:    {value: [31, 48], basis: "assumption: all months after classifier training", range: "fixed"}
+
+vendorscore:
+  sharpen:           {value: 1.5,  basis: "planted: overconfidence, logit scaled around the training base rate", range: "1.0-2.0"}
+  xgb_eta:           {value: 0.05, basis: "assumption: the vendor's hidden choice",  range: "0.02-0.2"}
+  xgb_max_depth:     {value: 3,    basis: "assumption: the vendor's hidden choice",  range: "2-6"}
+  xgb_min_child_weight: {value: 5, basis: "assumption: the vendor's hidden choice",  range: "1-20"}
+  xgb_subsample:     {value: 0.8,  basis: "assumption: the vendor's hidden choice",  range: "0.5-1"}
+  xgb_colsample:     {value: 0.8,  basis: "assumption: the vendor's hidden choice",  range: "0.5-1"}
+  xgb_nrounds:       {value: 150,  basis: "assumption: the vendor's hidden choice",  range: "50-500"}
+
+calibration:
+  ece_bins:        {value: 10,   basis: "convention", range: "5-20"}
+  bootstrap_draws: {value: 1000, basis: "convention: vendor-history resamples", range: "500-5000"}
+  band_low_upper:    {value: 0.01, basis: "assumption: illustrative Low/Medium boundary (monthly incident probability)", range: "0.005-0.02"}
+  band_medium_upper: {value: 0.03, basis: "assumption: illustrative Medium/High boundary", range: "0.02-0.05"}
+
+forecast:
+  benchmark_months: {value: 12, basis: "assumption: rolling-average length", range: "6-24"}
+  shift_month:      {value: 36, basis: "planted: last month before patch latency drifts (generator)", range: "fixed"}
+
+fragility:
+  alpha:             {value: 0.05, basis: "convention: pre-registered kill threshold", range: "0.01-0.10"}
+  trim_percentile:   {value: 0.99, basis: "assumption: drop patch_latency above this panel percentile", range: "0.95-0.995"}
+  deletion_budget:   {value: 80,   basis: "assumption: maximum greedy deletions", range: "40-200"}
+  deletion_shortlist: {value: 15,  basis: "assumption: candidates refitted per step", range: "5-50"}
+  falsifyr_intensity: {value: "normal", basis: "assumption", range: "fast / normal / deep"}
+
+simulator:   # reference only; validated in R/simulate.R (34 tests); not read from this file
+  n_vendors: 300
+  n_months: 48
+  true_no_soc2_odds_ratio: 1.25
+  vendor_size_log_odds: -0.45
+  vendor_random_effect_sd: 0.40
+  patch_latency_drift_per_month_after_shift: 0.045
+  basis: "planted: confounding (size), regime shift (patch latency), rare events (~1.5%)"

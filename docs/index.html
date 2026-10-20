@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Patrick Lefler">
+<meta name="dcterms.date" content="2026-10-20">
 
-<title>Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside</title>
+<title>Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside – Three Questions for Any Risk Model</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,6 +32,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./calibration.html" rel="next">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -40,7 +43,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-bfff32527affdc50e3fbb4fc133dc921.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-2ca19d6521e1ca6457e32fd772feae37.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -96,7 +99,10 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside</a> 
+      <a href="./">Three Questions for Any Risk Model</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" title="Source code" class="quarto-navigation-tool px-1" aria-label="Source code"><i class="bi bi-github"></i></a>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -130,6 +136,12 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Fragility</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reproducibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reproducibility</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -140,13 +152,13 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#hook" id="toc-hook" class="nav-link active" data-scroll-target="#hook">Hook</a></li>
+  <li><a href="#the-decision-problem" id="toc-the-decision-problem" class="nav-link active" data-scroll-target="#the-decision-problem">The decision problem</a></li>
   <li><a href="#the-three-questions" id="toc-the-three-questions" class="nav-link" data-scroll-target="#the-three-questions">The three questions</a></li>
   <li><a href="#the-case" id="toc-the-case" class="nav-link" data-scroll-target="#the-case">The case</a></li>
   <li><a href="#the-black-box-problem" id="toc-the-black-box-problem" class="nav-link" data-scroll-target="#the-black-box-problem">The black-box problem</a></li>
   <li><a href="#how-to-read-this-series" id="toc-how-to-read-this-series" class="nav-link" data-scroll-target="#how-to-read-this-series">How to read this series</a></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -154,13 +166,26 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Three Questions for Any Risk Model</h1>
+<p class="subtitle lead">Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside. A synthetic case study.</p>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Patrick Lefler </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 20, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -170,18 +195,18 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="hook" class="level2">
-<h2 class="anchored" data-anchor-id="hook">Hook</h2>
-<p>Your bank pays a vendor for a number. Every month, a model called VendorScore hands NorthPoint Bank a risk score for each of its 300 third-party vendors. Nobody at the bank can see the code, the training data, or the method. The scores simply arrive, and decisions follow them.</p>
-<p>How do you validate something you cannot open? This series shows that a great deal can be learned from the outside, using only the scores and what happens afterwards. It also shows where outside testing stops.</p>
+<section id="the-decision-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-decision-problem">The decision problem</h2>
+<p>Your bank pays a vendor for a number. Every month, a model called VendorScore hands NorthPoint Bank a risk score for each of its 300 third-party vendors. Nobody at the bank can see the code, the training data, or the method. The scores arrive, and decisions follow.</p>
+<p>How do you validate something you cannot open? This series shows how much can be learned from the scores and what happens afterwards, and where outside testing stops.</p>
 </section>
 <section id="the-three-questions" class="level2">
 <h2 class="anchored" data-anchor-id="the-three-questions">The three questions</h2>
-<p>The April 2026 interagency <em>Supervisory Guidance on Model Risk Management</em> (Federal Reserve, FDIC, OCC) is explicitly non-prescriptive. We read it as describing sound practice, not rules. Three questions follow from it, and each one works on any risk model, whether bought or built.</p>
+<p>The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) is explicitly non-prescriptive. We read it as describing sound practice, not rules. The three questions below are this project’s practical interpretation, not a regulator-prescribed checklist. Each works on any risk model.</p>
 <ol type="1">
-<li><strong>Are its probabilities honest?</strong> When the model says 10%, do incidents happen about 10% of the time? This is calibration, tested with the <code>probcal</code> package (<a href="./calibration.html">Page 2</a>).</li>
-<li><strong>Does it beat a simple model?</strong> A sophisticated model should outperform a plain 12-month average, and keep doing so when conditions change. This is forecast dominance, tested with <code>forecastdom</code> (<a href="./forecast.html">Page 3</a>).</li>
-<li><strong>Would its headline finding survive a push?</strong> Some findings collapse under a small change of method or data. This is fragility, tested with <code>falsifyr</code> (<a href="./fragility.html">Page 4</a>).</li>
+<li><strong>Are its probabilities honest?</strong> When the model says 10%, do incidents happen about 10% of the time? This is calibration, tested with <a href="https://cran.r-project.org/package=probcal"><code>probcal</code></a> (<a href="./calibration.html">Page 2</a>).</li>
+<li><strong>Does it beat a simple model?</strong> A sophisticated model should outperform a plain 12-month average, and keep doing so when conditions change. This is forecast dominance, tested with <a href="https://cran.r-project.org/package=forecastdom"><code>forecastdom</code></a> (<a href="./forecast.html">Page 3</a>).</li>
+<li><strong>Would its headline finding survive a push?</strong> Some findings collapse under a small change of method or data. This is fragility, tested with <a href="https://cran.r-project.org/package=falsifyr"><code>falsifyr</code></a> (<a href="./fragility.html">Page 4</a>).</li>
 </ol>
 <div id="fig-overview" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Three panels. Calibration asks whether probabilities are honest. Forecast dominance asks whether the model beats a simple one. Fragility asks whether the headline survives a push.">
 <figure class="quarto-float quarto-float-fig figure">
@@ -195,7 +220,7 @@ Figure&nbsp;1: Each test is tied to a question and to the decision it protects.
 </div>
 <div class="reader-note">
 <p><strong>How to read the plot.</strong> Each of the three columns is one question. Reading down a column, you see the question, the test used to answer it, and the decision that test protects.</p>
-<p><strong>What the plot tells you.</strong> The three tests are not interchangeable: each guards a different business decision. A model can pass one and fail another, so a validation that runs only one test leaves two decisions unprotected.</p>
+<p><strong>What the plot tells you.</strong> A model can pass one test and fail another, so one test alone leaves two decisions unprotected.</p>
 </div>
 <div class="callout callout-style-simple callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -207,31 +232,30 @@ Figure&nbsp;1: Each test is tied to a question and to the decision it protects.
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Guidance factors for judging how much validation a model deserves:</p>
+<p>Judging how much validation a model deserves (guidance §III) looks at three things:</p>
 <ul>
-<li><strong>Inherent risk: high.</strong> Scores drive vendor oversight where vendors hold client data.</li>
-<li><strong>Exposure: broad.</strong> The score covers the whole portfolio of 300 vendors.</li>
+<li><strong>Inherent risk: high.</strong> VendorScore is opaque, its assumptions and data are hidden, and vendor incidents are rare events, which limits the data available to test it.</li>
+<li><strong>Exposure: broad.</strong> The score covers all 300 vendors in the portfolio.</li>
 <li><strong>Purpose: consequential.</strong> Scores inform monitoring intensity and contract terms.</li>
 </ul>
-<p>Conclusion: full validation is warranted.</p>
+<p>Exposure and purpose together determine materiality, assessed alongside inherent risk. Illustrative conclusion: full validation is warranted.</p>
 </div>
 </div>
 </section>
 <section id="the-case" class="level2">
 <h2 class="anchored" data-anchor-id="the-case">The case</h2>
-<p>NorthPoint Bank is a fictional regional bank with about $45 billion in assets. The guidance targets banks above $30 billion; asset managers and fintechs can adopt the same practices voluntarily.</p>
-<p>All four pages share one synthetic dataset: 14400 vendor-months (300 vendors over 48 months, January 2022 to December 2025), with 209 observed incidents, or 1.45% of vendor-months. Because the data are simulated, we also know each vendor-month’s true incident probability, and we use it only as a reference standard. The models under test never see it. Everything is reproducible from seed 34.</p>
-<p>A fictional vendor, RiskMetric Systems, supplies VendorScore. It trained on months 1 to 30. NorthPoint evaluates it on months 31 to 48, a period that includes a deterioration in vendors’ patching speed after month 36.</p>
+<p>NorthPoint Bank is a fictional regional bank with about $45 billion in assets. The guidance is expected to be most relevant to banks above $30 billion; some smaller banks may also find it relevant. Asset managers and fintechs fall outside its scope but can adopt similar practices voluntarily.</p>
+<p>All four pages share one synthetic dataset: 14,400 vendor-months (300 vendors over 48 months, January 2022 to December 2025), with 209 observed incidents, or 1.45% of vendor-months. Because the data are simulated, we know each vendor-month’s true incident probability and use it only as a reference. The models under test never see it. Everything is reproducible from seed 34.</p>
+<p>A fictional vendor, RiskMetric Systems, supplies VendorScore, trained on months 1 to 30. NorthPoint fits a recalibration overlay on months 31 to 36 and assesses it on months 37 to 48 (Page 2). Page 3 compares the raw scores with a benchmark over months 31 to 48, a period that includes a deterioration in vendors’ patching speed after month 36.</p>
 </section>
 <section id="the-black-box-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-black-box-problem">The black-box problem</h2>
-<p>Guidance on vendor products (§VII) recognises that a bank may lack access to a vendor model’s inner workings. The vendor’s summary offers only a claim of “ensemble machine learning on proprietary threat intelligence,” an AUC of 0.81 “on vendor development data,” and the assertion that scores are “well-calibrated.” The bank can test none of this directly.</p>
-<p>What the bank does have is its own outcomes. Testing scores against outcomes is partial validation only. It cannot confirm that the proprietary model is conceptually sound; that depends on what the vendor discloses. Each page repeats this limit, and so should any committee that relies on these results.</p>
+<p>Guidance on vendor products (§VII) recognises that a bank may lack access to a vendor model’s inner workings. The vendor’s summary offers only “ensemble machine learning on proprietary threat intelligence,” an AUC of 0.81 “on vendor development data,” and the assertion that scores are “well-calibrated.”</p>
+<p>The bank can evaluate how the scores perform on its own outcomes, for calibration and discrimination. It cannot reproduce the vendor’s development-data AUC or inspect the hidden development choices. Testing scores against outcomes is partial validation only: it cannot confirm that the proprietary model is conceptually sound. That depends on what the vendor discloses (§VII).</p>
 </section>
 <section id="how-to-read-this-series" class="level2">
 <h2 class="anchored" data-anchor-id="how-to-read-this-series">How to read this series</h2>
-<p>Pages 2 to 4 share one structure: the question, the method in brief, the findings, what they mean for the bank, and one committee action phrased as “sound practice suggests…”. The expected findings were written as hypotheses before any analysis ran. Where a result differs from the hypothesis, the text reports the result.</p>
-<p>Code is folded by default; click “Show the code” to see it. Page 4 closes with a scorecard that gathers the measured results from all three tests.</p>
+<p>Pages 2 to 4 share one structure: the question, the method in brief, the findings, what they mean for the bank, and one committee action phrased as “sound practice suggests…”. The expected findings were written as hypotheses before any analysis ran; where a result differs, the text reports the result. Code is folded by default. Page 4 closes with a scorecard of measured results; a final page covers reproducibility and limits.</p>
 
 
 </section>
@@ -637,7 +661,40 @@ Figure&nbsp;1: Each test is tied to a question and to the decision it protects.
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./calibration.html" class="pagination-link" aria-label="Calibration">
+        <span class="nav-page-text">Calibration</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Synthetic case study: all data are simulated.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://seeking-eureka.com/projects.html">
+<p>Seeking Eureka projects</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link active" href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" aria-current="page">
+<p>Source code</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
 
 
 

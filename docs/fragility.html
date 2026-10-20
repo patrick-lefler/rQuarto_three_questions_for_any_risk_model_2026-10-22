@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Patrick Lefler">
+<meta name="dcterms.date" content="2026-10-20">
 
-<title>Question 3: Would Its Headline Finding Survive a Push? – Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside</title>
+<title>Question 3: Would Its Headline Finding Survive a Push? – Three Questions for Any Risk Model</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,6 +67,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./reproducibility.html" rel="next">
+<link href="./forecast.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -75,7 +79,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-bfff32527affdc50e3fbb4fc133dc921.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-2ca19d6521e1ca6457e32fd772feae37.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -131,7 +135,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside</a> 
+      <a href="./">Three Questions for Any Risk Model</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" title="Source code" class="quarto-navigation-tool px-1" aria-label="Source code"><i class="bi bi-github"></i></a>
+</div>
     </div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -165,6 +172,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Fragility</span></a>
   </div>
 </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reproducibility.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reproducibility</span></a>
+  </div>
+</li>
     </ul>
     </div>
 </nav>
@@ -181,7 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So what</a></li>
   <li><a href="#committee-action" id="toc-committee-action" class="nav-link" data-scroll-target="#committee-action">Committee action</a></li>
   </ul>
-</nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/fragility.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -195,7 +208,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Patrick Lefler </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 20, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -207,13 +232,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="the-question" class="level2">
 <h2 class="anchored" data-anchor-id="the-question">The question</h2>
-<p>NorthPoint built its own logistic regression, the bank’s incident-association model, from its panel. Its headline: vendors without a current SOC 2 Type II report have about twice the odds of an incident. That finding now supports a contract policy. How small a change makes it disappear?</p>
+<p>NorthPoint built its own logistic regression, the bank’s incident-association model, from its panel. Its headline: vendors without a current SOC 2 Type II report have about twice the odds of an incident (odds ratio 2.04, vendor-clustered 95% interval 1.48 to 2.82). That finding now supports a contract policy. How small a change makes it disappear?</p>
 </section>
 <section id="method-in-brief" class="level2">
 <h2 class="anchored" data-anchor-id="method-in-brief">Method in brief</h2>
-<p><strong>Pre-registered definition of a “kill”:</strong> the smallest perturbation under which the no-SOC-2 coefficient loses statistical significance at the 5% level, using standard errors clustered by vendor (each vendor appears 48 times, so ordinary standard errors overstate precision).</p>
-<p>We apply it two ways. A <em>specification curve</em> re-estimates the odds ratio across 32 reasonable model choices. A <em>smallest-kill search</em> looks for the least damaging change, including greedily deleting the vendor-months that most prop up the estimate.</p>
-<p>The <code>falsifyr</code> package runs its within-model attacks on the same model.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> Alternatives, such as E-values, ask about unmeasured confounding without naming it.</p>
+<p><strong>Pre-registered definition of a “kill”:</strong> the no-SOC-2 coefficient loses statistical significance at the 5% level using vendor-clustered standard errors (<code>sandwich::vcovCL</code>, Wald z). Ordinary standard errors ignore within-vendor dependence and may overstate precision.</p>
+<p>A <em>specification curve</em> re-estimates the odds ratio across 16 logit models (so every estimate is an odds ratio): include or omit vendor size, prior incidents and financial health, with or without trimming the slowest 1% of patch latencies. A <em>greedy deletion search</em> then removes, one at a time, the incident rows that most support the estimate, from the analysis dataset only; recorded lagged history is kept. Both are bounded searches, not proofs of what is smallest.</p>
+<p>The <code>falsifyr</code> package supplies the refits and a supplementary within-model attack run.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
 </section>
 <section id="findings" class="level2">
 <h2 class="anchored" data-anchor-id="findings">Findings</h2>
@@ -224,7 +249,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(cv, <span class="fu">aes</span>(rank, or, <span class="at">colour =</span> label)) <span class="sc">+</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">1</span>, <span class="at">colour =</span> <span class="st">"grey70"</span>) <span class="sc">+</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> fr<span class="sc">$</span>true_or, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> low, <span class="at">ymax =</span> high), <span class="at">size =</span> <span class="fl">0.35</span>) <span class="sc">+</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> low, <span class="at">ymax =</span> high), <span class="at">size =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">unname</span>(okabe_ito[<span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"vermillion"</span>)])) <span class="sc">+</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.8</span>, <span class="dv">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0.8"</span>, <span class="st">"1"</span>, <span class="st">"1.25"</span>, <span class="st">"1.5"</span>, <span class="st">"2"</span>, <span class="st">"3"</span>)) <span class="sc">+</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
@@ -232,32 +257,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Odds ratio for no SOC 2 (log scale)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-speccurve" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Dot-and-interval plot of 32 odds ratios in two clusters: about 1.3 with vendor size included, about 2.0 to 2.4 without it, with a horizontal line at 1.25.">
+<div id="fig-speccurve" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Dot-and-interval plot of 16 odds ratios in two clusters: about 1.3 with vendor size included, about 2.0 to 2.4 without it, with a horizontal line at 1.25.">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-speccurve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="fragility_files/figure-html/fig-speccurve-1.png" class="img-fluid figure-img" alt="Dot-and-interval plot of 32 odds ratios in two clusters: about 1.3 with vendor size included, about 2.0 to 2.4 without it, with a horizontal line at 1.25." width="672">
+<img src="fragility_files/figure-html/fig-speccurve-1.png" class="img-fluid figure-img" alt="Dot-and-interval plot of 16 odds ratios in two clusters: about 1.3 with vendor size included, about 2.0 to 2.4 without it, with a horizontal line at 1.25." width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-speccurve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: No-SOC-2 odds ratio across 32 model choices, ordered by size, with 95% vendor-clustered intervals. Dashed line: the true value, 1.25.
+Figure&nbsp;1: No-SOC-2 odds ratio across 16 logit specifications, ordered by size, with 95% vendor-clustered intervals. Dashed line: data-generating conditional OR, 1.25.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the plot.</strong> Each dot is the answer from one reasonable way of building the model. Height is the estimated increase in the odds of an incident for vendors without SOC 2. A value of 1 means no effect. The vertical line through each dot shows the plausible range. The dashed line is the true effect, which we know because the data are simulated.</p>
-<p><strong>What the plot tells you.</strong> The dots form two separate groups. Every model that leaves out vendor size gives an estimate near 2 to 2.4; every model that includes it gives about 1.3, close to the truth. Other choices (the type of model, trimming outliers, dropping controls) matter far less. One decision drives the result. Larger vendors are both more likely to hold SOC 2 and safer, and leaving size out credits SOC 2 with that safety.</p>
+<p><strong>How to read the plot.</strong> Each dot is one reasonable way of building the model; height is the estimated increase in the odds of an incident for vendors without SOC 2, and 1 means no effect. The vertical line is the plausible range. The dashed line is the generator’s conditional odds ratio, known because the data are simulated.</p>
+<p><strong>What the plot tells you.</strong> The dots form two groups, split by one decision: vendor size. Larger vendors are more likely to hold SOC 2 and are safer, so leaving size out credits SOC 2 with that safety. Closeness to 1.25 does not prove a causal model has been recovered.</p>
 </div>
-<p>All 16 specifications without vendor size are significant (odds ratios 2.04 to 2.43). None of the 16 that include it is (1.28 to 1.36).</p>
+<p>All 8 specifications without vendor size are significant (odds ratios 2.04 to 2.43); none of the 8 that include it is (1.28 to 1.36). Adding vendor size alone takes the estimate to 1.28 (interval 0.90 to 1.82, p = 0.163) with no data removed. This concerns the association; it does not show that SOC 2 has no effect.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dp <span class="ot">&lt;-</span> fr<span class="sc">$</span>deletion_path</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dp, <span class="fu">aes</span>(removed, p)) <span class="sc">+</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dp, <span class="fu">aes</span>(step, p)) <span class="sc">+</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.05</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> <span class="st">"grey30"</span>) <span class="sc">+</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> okabe_ito[[<span class="st">"blue"</span>]], <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> okabe_ito[[<span class="st">"blue"</span>]], <span class="at">size =</span> <span class="fl">1.6</span>) <span class="sc">+</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">removed =</span> <span class="dv">0</span>, <span class="at">p =</span> ps<span class="sc">$</span>p), <span class="at">shape =</span> <span class="dv">18</span>, <span class="at">size =</span> <span class="dv">5</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">step =</span> <span class="dv">0</span>, <span class="at">p =</span> ps<span class="sc">$</span>p), <span class="at">shape =</span> <span class="dv">18</span>, <span class="at">size =</span> <span class="dv">5</span>,</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">colour =</span> okabe_ito[[<span class="st">"vermillion"</span>]]) <span class="sc">+</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>(<span class="at">drop0trailing =</span> <span class="cn">TRUE</span>)) <span class="sc">+</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Incident vendor-months deleted (greedy search)"</span>,</span>
@@ -270,83 +295,82 @@ Figure&nbsp;1: No-SOC-2 odds ratio across 32 model choices, ordered by size, wit
 <img src="fragility_files/figure-html/fig-kill-1.png" class="img-fluid figure-img" alt="Line chart of p-value rising as rows are deleted, crossing 0.05 at the point marked, and a diamond above 0.05 at zero deletions for the model with vendor size." width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-kill-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Smallest kill: clustered p-value as incident vendor-months are deleted. Adding vendor size alone (diamond) crosses the 5% line with nothing deleted.
+Figure&nbsp;2: Greedy deletion search: clustered p-value as supportive incident rows are deleted. The diamond is the size-adjusted model with nothing deleted.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the plot.</strong> The blue line removes, one at a time, the incidents at vendors without SOC 2 that most support the finding, and tracks how convincing the result remains. Higher means weaker evidence. Above the dashed line the result is no longer statistically significant. The diamond shows the result when we simply add vendor size.</p>
-<p><strong>What the plot tells you.</strong> Throwing away real incidents erodes the finding slowly: it takes 29 deletions, about 14% of all 209 incidents, before it fails. A single better model choice does the same job with nothing deleted. The finding is sturdy against data noise but not against a flawed model.</p>
+<p><strong>How to read the plot.</strong> The blue line removes, one at a time, incidents at vendors without SOC 2 that most support the finding, and tracks how convincing the result stays. Higher means weaker evidence; above the dashed line it is no longer statistically significant. The diamond is the size-adjusted result, with no rows removed.</p>
+<p><strong>What the plot tells you.</strong> This is an adversarial stress test, not data cleaning. The two routes to the 5% line are different kinds of distance, so they should not be compared by counting.</p>
 </div>
-<p>The deletion count is an upper bound on the true smallest data kill, since the search is greedy. <code>falsifyr</code> found no kill at all (verdict: resilient), but cannot test the better model that matters here. A tool that only perturbs a model never reveals that the model itself was missing something.</p>
-<p><strong>Seed sensitivity.</strong> We re-ran the simulation under seeds 1 to 40 with the final parameters. The naive odds ratio ranged from 1.30 to 2.76 (median 2.02), and was significant in 38 of 40. With vendor size included, it ranged from 0.84 to 1.78 (median 1.29) and was significant in only 9. With about 200 incidents, a single sample can move the answer a lot, so the exact “2×” is itself fragile, even though the upward bias from omitting size is systematic.</p>
+<p>The search found a successful perturbation, within its budget of 80 deletions, at 29 deleted rows: 0.20% of all 14,400 rows, 13.9% of all 209 incidents and 20.6% of the 141 eligible supportive incidents. A greedy search gives an upper bound on the smallest such change, and post-search p-values are diagnostics, not fresh tests. <code>falsifyr</code> found no kill in its run (verdict resilient), which is not proof of robustness.</p>
+<p><strong>Seed sensitivity.</strong> Each seed generates a different synthetic dataset, so this is a Monte Carlo repeatability check, not a perturbation of the bank’s data. We re-ran the generator for seeds 1 to 40, with the same clustered baseline. The omitted-size odds ratio ranged from 1.30 to 2.77 (median 2.01), significant in 38 of 40 runs. With size included it ranged from 0.84 to 1.78 (median 1.29), significant in 9. These counts are descriptive and imprecise. Seed 34 was chosen during development because it illustrates the intended patterns so its p-values are not an unbiased experiment. The upward bias from omitting size is repeatable; the exact “2×” is not.</p>
 </section>
 <section id="so-what" class="level2">
 <h2 class="anchored" data-anchor-id="so-what">So what</h2>
-<p>The “2× odds” headline reflects confounding, not a robust effect of SOC 2: in this sample the size-adjusted estimate is 1.28 (interval 0.90 to 1.82), not distinguishable from no effect at 5%. The model was built to describe incident associations, then reused to justify a contract policy. The guidance flags use beyond a model’s intended purpose (§IV, Model Use) and calls for effective challenge and alternative assumptions (§III, §V). The challenge here was a single added variable.</p>
-<p>This too is partial validation: a robust association would still be an association, not a cause, and the page cannot say whether SOC 2 reduces risk.</p>
+<p>The “2× odds” headline reflects confounding in this simulator, not a robust effect of SOC 2: the size-adjusted estimate is 1.28 (0.90 to 1.82), which is also compatible with a sizeable effect. The bank’s own model was built to describe associations, then reused to support a contract policy. The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) flags use beyond a model’s intended purpose (§IV, Model Use), and describes effective challenge (§III) and testing with alternative assumptions (§IV). The challenge here was one added variable. This is partial validation too, and a robust association would still not be a causal effect.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Test =</span> <span class="fu">c</span>(<span class="st">"Calibration"</span>, <span class="st">"Forecast dominance"</span>, <span class="st">"Fragility"</span>),</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Question =</span> <span class="fu">c</span>(<span class="st">"Honest probabilities?"</span>, <span class="st">"Beats a simple model?"</span>, <span class="st">"Robust headline?"</span>),</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Result =</span> <span class="fu">c</span>(</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprintf</span>(<span class="st">"Top-scored group predicted %s vs observed %s; recalibration gains are small and unclear (Brier %s to %s), and undercount incidents."</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="fu">pct</span>(cal<span class="sc">$</span>reliability<span class="sc">$</span>predicted[cal<span class="sc">$</span>reliability<span class="sc">$</span>score <span class="sc">==</span> <span class="st">"Raw VendorScore"</span> <span class="sc">&amp;</span> cal<span class="sc">$</span>reliability<span class="sc">$</span>bin <span class="sc">==</span> <span class="dv">10</span>]),</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">pct</span>(cal<span class="sc">$</span>reliability<span class="sc">$</span>observed[cal<span class="sc">$</span>reliability<span class="sc">$</span>score <span class="sc">==</span> <span class="st">"Raw VendorScore"</span> <span class="sc">&amp;</span> cal<span class="sc">$</span>reliability<span class="sc">$</span>bin <span class="sc">==</span> <span class="dv">10</span>]),</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            <span class="fu">num</span>(raw<span class="sc">$</span>brier, <span class="dv">4</span>), <span class="fu">num</span>(iso<span class="sc">$</span>brier, <span class="dv">4</span>)),</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprintf</span>(<span class="st">"MSE %s lower than the 12-month average, not significant (p = %s)."</span>,</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">pct</span>(<span class="dv">1</span> <span class="sc">-</span> full<span class="sc">$</span>mse_vs <span class="sc">/</span> full<span class="sc">$</span>mse_naive, <span class="dv">0</span>), <span class="fu">pval</span>(full<span class="sc">$</span>dm_p)),</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprintf</span>(<span class="st">"Odds ratio %s falls to %s (p = %s) once vendor size is added."</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            <span class="fu">num</span>(b<span class="sc">$</span>or), <span class="fu">num</span>(ps<span class="sc">$</span>or), <span class="fu">num</span>(ps<span class="sc">$</span>p))),</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Response =</span> <span class="fu">c</span>(<span class="st">"Overlay: recalibrate output; set thresholds, refresh regularly"</span>,</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Closer monitoring; raise with vendor; ask for development evidence; keep contingency plan"</span>,</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Limit use: not a basis for contract policy; document the exception"</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Measured result</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprintf</span>(<span class="st">"Raw top group predicted %s, observed %s. Isotonic overlay changes Brier by %s (%s to %s); gains small and unclear."</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="fu">pct</span>(raw_top<span class="sc">$</span>predicted), <span class="fu">pct</span>(raw_top<span class="sc">$</span>observed), <span class="fu">sgn</span>(brier_chg), <span class="fu">sgn</span>(cm<span class="sc">$</span>diff_low), <span class="fu">sgn</span>(cm<span class="sc">$</span>diff_high)),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprintf</span>(<span class="st">"MSE %s lower than the 12-month average; DM p = %s (n = 18): no detectable advantage."</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            <span class="fu">pct</span>(<span class="dv">1</span> <span class="sc">-</span> full<span class="sc">$</span>mse_vs <span class="sc">/</span> full<span class="sc">$</span>mse_naive, <span class="dv">0</span>), <span class="fu">pval</span>(full<span class="sc">$</span>dm_p)),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprintf</span>(<span class="st">"Odds ratio %s becomes %s (p = %s) when vendor size is added; one added variable removes significance."</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">num</span>(b<span class="sc">$</span>or), <span class="fu">num</span>(ps<span class="sc">$</span>or), <span class="fu">num</span>(ps<span class="sc">$</span>p))),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Suggested response</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Do not approve the tested overlay for routine use yet; investigate, keep the existing process under documented controls, validate any replacement on later outcomes."</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Closer monitoring; raise with vendor; ask for development evidence; keep contingency plan."</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Limit use: do not use this association alone to infer the effect of requiring SOC 2; document the exception."</span>),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(score)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div id="tbl-scorecard" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-scorecard-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Series scorecard: NorthPoint’s measured results and the responses suggested by the guidance’s vocabulary.
+Table&nbsp;1: Series scorecard: measured results at NorthPoint, and responses in the guidance’s vocabulary (measured result and decision kept separate).
 </figcaption>
 <div aria-describedby="tbl-scorecard-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
 <table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <colgroup>
+<col style="width: 5%">
 <col style="width: 6%">
-<col style="width: 7%">
-<col style="width: 52%">
-<col style="width: 32%">
+<col style="width: 39%">
+<col style="width: 48%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Test</th>
 <th style="text-align: left;">Question</th>
-<th style="text-align: left;">Result</th>
-<th style="text-align: left;">Response</th>
+<th style="text-align: left;">Measured result</th>
+<th style="text-align: left;">Suggested response</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Calibration</td>
 <td style="text-align: left;">Honest probabilities?</td>
-<td style="text-align: left;">Top-scored group predicted 10.5% vs observed 7.0%; recalibration gains are small and unclear (Brier 0.0191 to 0.0186), and undercount incidents.</td>
-<td style="text-align: left;">Overlay: recalibrate output; set thresholds, refresh regularly</td>
+<td style="text-align: left;">Raw top group predicted 10.8%, observed 6.9%. Isotonic overlay changes Brier by −0.00026 (−0.00064 to 0.00004); gains small and unclear.</td>
+<td style="text-align: left;">Do not approve the tested overlay for routine use yet; investigate, keep the existing process under documented controls, validate any replacement on later outcomes.</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Forecast dominance</td>
 <td style="text-align: left;">Beats a simple model?</td>
-<td style="text-align: left;">MSE 22% lower than the 12-month average, not significant (p = 0.235).</td>
-<td style="text-align: left;">Closer monitoring; raise with vendor; ask for development evidence; keep contingency plan</td>
+<td style="text-align: left;">MSE 22% lower than the 12-month average; DM p = 0.235 (n = 18): no detectable advantage.</td>
+<td style="text-align: left;">Closer monitoring; raise with vendor; ask for development evidence; keep contingency plan.</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Fragility</td>
 <td style="text-align: left;">Robust headline?</td>
-<td style="text-align: left;">Odds ratio 2.06 falls to 1.28 (p = 0.17) once vendor size is added.</td>
-<td style="text-align: left;">Limit use: not a basis for contract policy; document the exception</td>
+<td style="text-align: left;">Odds ratio 2.04 becomes 1.28 (p = 0.16) when vendor size is added; one added variable removes significance.</td>
+<td style="text-align: left;">Limit use: do not use this association alone to infer the effect of requiring SOC 2; document the exception.</td>
 </tr>
 </tbody>
 </table>
@@ -356,13 +380,13 @@ Table&nbsp;1: Series scorecard: NorthPoint’s measured results and the response
 </div>
 </div>
 <div class="reader-note">
-<p><strong>How to read the table.</strong> One row per question. The “Result” column is what we measured at NorthPoint. The “Response” column is the action that sound practice suggests, in the guidance’s own vocabulary: an overlay adjusts a model’s output without changing the model, and limits on use restrict what a result may be used for.</p>
-<p><strong>What the table tells you.</strong> None of the three tests found the vendor model or the bank’s own finding to be clean. These results do not, on their own, argue for scrapping VendorScore. Each calls for a proportionate response: adjust, watch, or limit. The weakest item is the bank’s own finding, not the vendor’s model.</p>
+<p><strong>How to read the table.</strong> One row per question: what we measured at NorthPoint, and the action sound practice suggests, in the guidance’s vocabulary. An overlay adjusts a model’s output without changing the model; limits on use restrict what a result may be used for.</p>
+<p><strong>What the table tells you.</strong> None of the three tests found anything clean, and none, alone, argues for scrapping VendorScore. The weakest item is the bank’s own finding.</p>
 </div>
 </section>
 <section id="committee-action" class="level2">
 <h2 class="anchored" data-anchor-id="committee-action">Committee action</h2>
-<p>Sound practice suggests documenting the SOC 2 finding as an exception to its intended purpose: not a basis for contract policy until a size-adjusted analysis supports it. The April 2026 interagency <em>Supervisory Guidance on Model Risk Management</em> does not prescribe this; it is a judgement for the committee.</p>
+<p>Sound practice suggests documenting the SOC 2 finding as an exception (§VI) and analysing its new use before relying on it (§IV). Do not use this association alone to infer the effect of requiring SOC 2: contract requirements need business, legal and control evidence. The guidance does not prescribe this.</p>
 
 
 </section>
@@ -371,7 +395,7 @@ Table&nbsp;1: Series scorecard: NorthPoint’s measured results and the response
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p><code>falsifyr</code> does not use vendor-clustered standard errors and cannot add an omitted variable, so the pre-registered kill is a hand-built loop. <code>falsifyr</code> supplies the within-model attacks.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p><a href="https://cran.r-project.org/package=falsifyr"><code>falsifyr</code></a> 1.0.0: <code>refit_model()</code> performs each specification refit; <code>attack()</code> (term <code>no_soc2</code>, intensity “normal”, seed 34, kill rule p over alpha) ran 20 attacks: 19 survived, one unavailable. Its configured routine did not evaluate the added-control specification under our vendor-clustered inference rule, so we implemented that check separately.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -774,7 +798,43 @@ Table&nbsp;1: Series scorecard: NorthPoint’s measured results and the response
     }
   });
   </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./forecast.html" class="pagination-link" aria-label="Forecast">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Forecast</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./reproducibility.html" class="pagination-link" aria-label="Reproducibility">
+        <span class="nav-page-text">Reproducibility</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Synthetic case study: all data are simulated.</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/fragility.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+    <a class="nav-link" href="https://seeking-eureka.com/projects.html">
+<p>Seeking Eureka projects</p>
+</a>
+  </li>  
+    <li class="nav-item">
+    <a class="nav-link active" href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" aria-current="page">
+<p>Source code</p>
+</a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
 
 
 
