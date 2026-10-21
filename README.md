@@ -26,7 +26,7 @@ Rscript R/analysis_fragility.R       # data/fragility.rds + CSVs (~2 min: 40-see
 Rscript R/build_manifest.R           # manifest, checksums, session info
 Rscript tests/run_tests.R            # test counts -> data/test_results.csv
 quarto render                        # -> docs/
-Rscript R/word_count.R               # rendered-word count (ceiling 4,000)
+Rscript R/word_count.R               # rendered-word count (ceiling 4,100)
 ```
 
 Pages read cached artifacts in `data/` only; they never refit a model.

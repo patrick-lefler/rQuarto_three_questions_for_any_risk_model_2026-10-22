@@ -130,8 +130,8 @@ was built to describe associations, then reused to support a contract policy.
 The April 17, 2026 interagency [*Supervisory Guidance on Model Risk Management*](https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf)
 (Federal Reserve, FDIC, OCC) flags use beyond a model's intended purpose (§IV, Model Use), and
 describes effective challenge (§III) and testing with alternative assumptions (§IV). The challenge here
-was one added variable. This is partial validation too, and a robust association would still not
-be a causal effect.
+was one added variable. This is partial validation too; even a robust association would not
+be causal.
 
 ```{r}
 #| label: tbl-scorecard

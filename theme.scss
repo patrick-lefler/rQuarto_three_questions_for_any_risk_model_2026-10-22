@@ -14,3 +14,15 @@ main table td, main table th { white-space: normal; vertical-align: top; }
   main table { font-size: 0.8rem; }
   main table td, main table th { padding: 0.3rem 0.4rem; }
 }
+
+/* Hide the sidebar header (site title link); page links stay */
+#quarto-sidebar .sidebar-header { display: none; }
+
+/* Heading above the left page links, styled like the right-hand "On this page" */
+#quarto-sidebar .sidebar-menu-container::before {
+  content: "In this project";
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0.3rem 0 0.4rem;
+}

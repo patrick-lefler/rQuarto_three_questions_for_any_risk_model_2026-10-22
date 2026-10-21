@@ -43,3 +43,9 @@ parameter now lives in `params.yaml` (value, basis, sensitivity range) and is re
 scripts; outputs were verified unchanged after the refactor (same score checksum and
 metrics). Test counts on the page come from `data/test_results.csv`. Rendered word count
 is 3,971 of the 4,000 ceiling, so the four analysis pages were tightened to make room.
+
+## Addendum: section key
+
+A plain-language key to the guidance's section marks (§III-§VII) was added to the Overview
+page. The owner approved exceeding the 4,000-word ceiling for this change; the gate in
+`R/word_count.R` is now 4,100. Rendered total: 4,063 words.

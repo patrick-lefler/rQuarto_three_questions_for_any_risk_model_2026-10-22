@@ -35,7 +35,7 @@ whether a recalibration overlay would help.
 
 ## Method in brief
 
-Three non-overlapping windows keep the tests honest. VendorScore trained on months 1 to 30
+VendorScore trained on months 1 to 30
 (the vendor's business). We fitted the overlay on months 31 to 36
 (`r format(fitw$vendor_months, big.mark = ",")` vendor-months, `r fitw$incidents` incidents), so the classifier had not trained on
 those rows. Every result below comes from months 37 to 48 (`r format(evw$vendor_months, big.mark = ",")` vendor-months,
