@@ -29,6 +29,19 @@ The April 17, 2026 interagency [*Supervisory Guidance on Model Risk Management*]
 practice, not rules. The three questions below are this project's practical interpretation,
 not a regulator-prescribed checklist. Each works on any risk model.
 
+**Reading the § marks.** § means "section." Pages cite these parts of the guidance:
+
+- **§III, overview of model risk:** what makes a model risky, how much a model matters
+  (materiality), and independent critical review ("effective challenge").
+- **§IV, development and use:** how models are built and tested, and the risk of using a
+  model for something it was not designed for.
+- **§V, validation and monitoring:** checking a model against real outcomes, watching it over
+  time, and adjusting, recalibrating or rebuilding it if needed.
+- **§VI, governance and controls:** policies, roles and records, including documenting
+  exceptions.
+- **§VII, vendor products:** applying the same discipline to bought models whose code and
+  data the bank may never see.
+
 1. **Are its probabilities honest?** When the model says 10%, do incidents happen about 10%
    of the time? This is calibration, tested with [`probcal`](https://cran.r-project.org/package=probcal) ([Page 2](calibration.qmd)).
 2. **Does it beat a simple model?** A sophisticated model should outperform a plain
@@ -40,9 +53,8 @@ not a regulator-prescribed checklist. Each works on any risk model.
 ![Each test is tied to a question and to the decision it protects.](figures/three_questions.svg){#fig-overview fig-alt="Three panels. Calibration asks whether probabilities are honest. Forecast dominance asks whether the model beats a simple one. Fragility asks whether the headline survives a push."}
 
 ::: {.reader-note}
-**How to read the plot.** Each of the three columns is one question. Reading down a
-column, you see the question, the test used to answer it, and the decision that test
-protects.
+**How to read the plot.** Each of the three columns is one question. Reading down, each
+column shows the question, the test, and the decision it protects.
 
 **What the plot tells you.** A model can pass one test and fail another, so one test
 alone leaves two decisions unprotected.
@@ -71,11 +83,10 @@ guidance is expected to be most relevant to banks above $30 billion; some smalle
 also find it relevant. Asset managers and fintechs fall outside its scope but can adopt
 similar practices voluntarily.
 
-All four pages share one synthetic dataset: `r format(nrow(panel), big.mark = ",")` vendor-months (300 vendors over
+All pages share one synthetic dataset: `r format(nrow(panel), big.mark = ",")` vendor-months (300 vendors over
 48 months, January 2022 to December 2025), with `r sum(panel$incident)` observed incidents,
 or `r pct(mean(panel$incident), 2)` of vendor-months. Because the data are simulated, we know each
-vendor-month's true incident probability and use it only as a reference. The models under
-test never see it. Everything is reproducible from seed 34.
+vendor-month's true incident probability, used only as a reference; the models never see it. Everything is reproducible from seed 34.
 
 A fictional vendor, RiskMetric Systems, supplies VendorScore, trained on months 1 to 30.
 NorthPoint fits a recalibration overlay on months 31 to 36 and assesses it on months 37 to

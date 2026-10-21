@@ -10,15 +10,10 @@ project:
 
 website:
   title: "Three Questions for Any Risk Model"
+  search: false
   page-navigation: true
-  repo-url: https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22
-  repo-actions: [source]
   sidebar:
-    style: docked
-    tools:
-      - icon: github
-        href: https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22
-        text: Source code
+    style: floating
     contents:
       - href: index.qmd
         text: Overview

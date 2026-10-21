@@ -4,10 +4,12 @@
 # ones) and footnotes, with inline results as rendered. Excludes navigation
 # chrome and folded source code. Run from the project root after quarto render:
 #   Rscript R/word_count.R
-# Exits 1 if the total exceeds 4,000 words. Writes data/word_count.csv.
+# Exits 1 if the total exceeds the ceiling. Writes data/word_count.csv.
 
 library(xml2)
-CEILING <- 4000; TARGET <- c(3500, 3750)
+# Ceiling raised from 4,000 to 4,100 by the owner (2026-10-21) to allow the plain-language
+# key to the guidance's section marks on the Overview page.
+CEILING <- 4100; TARGET <- c(3500, 3750)
 pages <- c("index", "calibration", "forecast", "fragility", "reproducibility")
 
 count_page <- function(p) {

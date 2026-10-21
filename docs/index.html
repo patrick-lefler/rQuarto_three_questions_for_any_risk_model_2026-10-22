@@ -27,12 +27,8 @@ ul.task-list li input[type="checkbox"] {
 
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
 <link href="./calibration.html" rel="next">
+<script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
@@ -43,20 +39,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-2ca19d6521e1ca6457e32fd772feae37.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-27a998fbd444cbea4325d855b637c53e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -75,7 +59,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-sidebar docked quarto-light">
+<body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -87,29 +71,18 @@ ul.task-list li input[type="checkbox"] {
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Overview</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
-        <i class="bi bi-search"></i>
-      </button>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
       <a href="./">Three Questions for Any Risk Model</a> 
-        <div class="sidebar-tools-main">
-    <a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" title="Source code" class="quarto-navigation-tool px-1" aria-label="Source code"><i class="bi bi-github"></i></a>
-</div>
     </div>
       </div>
-        <div class="mt-2 flex-shrink-0 align-items-center">
-        <div class="sidebar-search">
-        <div id="quarto-search" class="" title="Search"></div>
-        </div>
-        </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -158,7 +131,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#the-black-box-problem" id="toc-the-black-box-problem" class="nav-link" data-scroll-target="#the-black-box-problem">The black-box problem</a></li>
   <li><a href="#how-to-read-this-project" id="toc-how-to-read-this-project" class="nav-link" data-scroll-target="#how-to-read-this-project">How to read this project</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -203,6 +176,14 @@ ul.task-list li input[type="checkbox"] {
 <section id="the-three-questions" class="level3">
 <h3 class="anchored" data-anchor-id="the-three-questions">The three questions</h3>
 <p>The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) is explicitly non-prescriptive. We read it as describing sound practice, not rules. The three questions below are this project’s practical interpretation, not a regulator-prescribed checklist. Each works on any risk model.</p>
+<p><strong>Reading the § marks.</strong> § means “section.” Pages cite these parts of the guidance:</p>
+<ul>
+<li><strong>§III, overview of model risk:</strong> what makes a model risky, how much a model matters (materiality), and independent critical review (“effective challenge”).</li>
+<li><strong>§IV, development and use:</strong> how models are built and tested, and the risk of using a model for something it was not designed for.</li>
+<li><strong>§V, validation and monitoring:</strong> checking a model against real outcomes, watching it over time, and adjusting, recalibrating or rebuilding it if needed.</li>
+<li><strong>§VI, governance and controls:</strong> policies, roles and records, including documenting exceptions.</li>
+<li><strong>§VII, vendor products:</strong> applying the same discipline to bought models whose code and data the bank may never see.</li>
+</ul>
 <ol type="1">
 <li><strong>Are its probabilities honest?</strong> When the model says 10%, do incidents happen about 10% of the time? This is calibration, tested with <a href="https://cran.r-project.org/package=probcal"><code>probcal</code></a> (<a href="./calibration.html">Page 2</a>).</li>
 <li><strong>Does it beat a simple model?</strong> A sophisticated model should outperform a plain 12-month average, and keep doing so when conditions change. This is forecast dominance, tested with <a href="https://cran.r-project.org/package=forecastdom"><code>forecastdom</code></a> (<a href="./forecast.html">Page 3</a>).</li>
@@ -219,7 +200,7 @@ Figure&nbsp;1: Each test is tied to a question and to the decision it protects.
 </figure>
 </div>
 <div class="reader-note">
-<p><strong>How to read the plot.</strong> Each of the three columns is one question. Reading down a column, you see the question, the test used to answer it, and the decision that test protects.</p>
+<p><strong>How to read the plot.</strong> Each of the three columns is one question. Reading down, each column shows the question, the test, and the decision it protects.</p>
 <p><strong>What the plot tells you.</strong> A model can pass one test and fail another, so one test alone leaves two decisions unprotected.</p>
 </div>
 <div class="callout callout-style-simple callout-note no-icon callout-titled">
@@ -245,7 +226,7 @@ Figure&nbsp;1: Each test is tied to a question and to the decision it protects.
 <section id="the-case" class="level3">
 <h3 class="anchored" data-anchor-id="the-case">The case</h3>
 <p>NorthPoint Bank is a fictional regional bank with about $45 billion in assets. The guidance is expected to be most relevant to banks above $30 billion; some smaller banks may also find it relevant. Asset managers and fintechs fall outside its scope but can adopt similar practices voluntarily.</p>
-<p>All four pages share one synthetic dataset: 14,400 vendor-months (300 vendors over 48 months, January 2022 to December 2025), with 209 observed incidents, or 1.45% of vendor-months. Because the data are simulated, we know each vendor-month’s true incident probability and use it only as a reference. The models under test never see it. Everything is reproducible from seed 34.</p>
+<p>All pages share one synthetic dataset: 14,400 vendor-months (300 vendors over 48 months, January 2022 to December 2025), with 209 observed incidents, or 1.45% of vendor-months. Because the data are simulated, we know each vendor-month’s true incident probability, used only as a reference; the models never see it. Everything is reproducible from seed 34.</p>
 <p>A fictional vendor, RiskMetric Systems, supplies VendorScore, trained on months 1 to 30. NorthPoint fits a recalibration overlay on months 31 to 36 and assesses it on months 37 to 48 (Page 2). Page 3 compares the raw scores with a benchmark over months 31 to 48, a period that includes a deterioration in vendors’ patching speed after month 36.</p>
 </section>
 <section id="the-black-box-problem" class="level3">
@@ -678,7 +659,7 @@ Figure&nbsp;1: Each test is tied to a question and to the decision it protects.
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></div>
+    </div>
     <div class="nav-footer-right">
       <ul class="footer-items list-unstyled">
     <li class="nav-item">
@@ -687,7 +668,7 @@ Figure&nbsp;1: Each test is tied to a question and to the decision it protects.
 </a>
   </li>  
     <li class="nav-item">
-    <a class="nav-link active" href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22" aria-current="page">
+    <a class="nav-link" href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22">
 <p>Source code</p>
 </a>
   </li>  
