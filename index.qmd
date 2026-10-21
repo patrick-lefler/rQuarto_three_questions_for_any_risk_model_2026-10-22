@@ -10,17 +10,19 @@ source("R/common.R")
 panel <- read.csv("data/vendor_panel.csv")
 ```
 
-## The decision problem
+### The decision problem
 
 Your bank pays a vendor for a number. Every month, a model called VendorScore hands
 NorthPoint Bank a risk score for each of its `r length(unique(panel$vendor_id))` third-party
 vendors. Nobody at the bank can see the code, the training data, or the method. The
 scores arrive, and decisions follow.
 
-How do you validate something you cannot open? This series shows how much can be learned
+How do you validate something you cannot open? This project shows how much can be learned
 from the scores and what happens afterwards, and where outside testing stops.
 
-## The three questions
+
+
+### The three questions
 
 The April 17, 2026 interagency [*Supervisory Guidance on Model Risk Management*](https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf)
 (Federal Reserve, FDIC, OCC) is explicitly non-prescriptive. We read it as describing sound
@@ -60,7 +62,9 @@ Exposure and purpose together determine materiality, assessed alongside inherent
 Illustrative conclusion: full validation is warranted.
 :::
 
-## The case
+
+
+### The case
 
 NorthPoint Bank is a fictional regional bank with about $45 billion in assets. The
 guidance is expected to be most relevant to banks above $30 billion; some smaller banks may
@@ -78,7 +82,7 @@ NorthPoint fits a recalibration overlay on months 31 to 36 and assesses it on mo
 48 (Page 2). Page 3 compares the raw scores with a benchmark over months 31 to 48, a
 period that includes a deterioration in vendors' patching speed after month 36.
 
-## The black-box problem
+### The black-box problem
 
 Guidance on vendor products (§VII) recognises that a bank may lack access to a vendor
 model's inner workings. The vendor's summary offers only "ensemble machine learning on
@@ -91,7 +95,7 @@ hidden development choices. Testing scores against outcomes is partial validatio
 cannot confirm that the proprietary model is conceptually sound. That depends on what the
 vendor discloses (§VII).
 
-## How to read this series
+### How to read this project
 
 Pages 2 to 4 share one structure: the question, the method in brief, the findings, what
 they mean for the bank, and one committee action phrased as "sound practice suggests…".
