@@ -26,14 +26,14 @@ n_ece_zero <- sum(ece_rows$diff_low <= 0 & ece_rows$diff_high >= 0)
 up_n <- sum(vb$move == "Moves up"); same_n <- sum(vb$move == "No change")
 ```
 
-## The question
+### The question
 
 When VendorScore says a vendor has a 10% chance of an incident, do incidents happen about
 10% of the time? RiskMetric Systems asserts that its scores are "well-calibrated." NorthPoint
 cannot inspect the model, but it can compare the scores with what happened, and it can test
 whether a recalibration overlay would help.
 
-## Method in brief
+### Method in brief
 
 VendorScore trained on months 1 to 30
 (the vendor's business). We fitted the overlay on months 31 to 36
@@ -51,7 +51,7 @@ equal-width groups. Uncertainty comes from resampling whole vendor histories (1,
 because the same vendors recur every month. Intervals condition on the fitted overlay and
 leave out overlay-fitting uncertainty.
 
-## Findings
+### Findings
 
 ```{r}
 #| label: fig-reliability
@@ -154,7 +154,7 @@ This shows the overlay's decision impact, not that the new bands are right; aver
 whole window is a retrospective device, not a monitoring rule.
 :::
 
-## So what
+### So what
 
 The vendor's calibration claim does not hold cleanly: the highest-risk group is overstated
 and the overlay evidence is thin. Outcomes analysis (§V) can support an overlay (§VII), but
@@ -171,7 +171,7 @@ The kernel test in `probcal::cal_test()` on raw scores gives p = `r pval(cal$cla
 rows as independent although vendors recur monthly, so we do not rely on it.
 :::
 
-## Committee action
+### Actionable Insights
 
 Sound practice suggests not approving the tested overlay for routine use yet: investigate
 the shortfall, keep the existing process under documented controls, and validate any

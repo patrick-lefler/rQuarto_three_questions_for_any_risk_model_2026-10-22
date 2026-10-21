@@ -80,56 +80,6 @@
     ]
   },
   {
-    "objectID": "calibration.html#the-question",
-    "href": "calibration.html#the-question",
-    "title": "Question 1: Are Its Probabilities Honest?",
-    "section": "",
-    "text": "When VendorScore says a vendor has a 10% chance of an incident, do incidents happen about 10% of the time? RiskMetric Systems asserts that its scores are “well-calibrated.” NorthPoint cannot inspect the model, but it can compare the scores with what happened, and it can test whether a recalibration overlay would help.",
-    "crumbs": [
-      "Calibration"
-    ]
-  },
-  {
-    "objectID": "calibration.html#method-in-brief",
-    "href": "calibration.html#method-in-brief",
-    "title": "Question 1: Are Its Probabilities Honest?",
-    "section": "Method in brief",
-    "text": "Method in brief\nVendorScore trained on months 1 to 30 (the vendor’s business). We fitted the overlay on months 31 to 36 (1,800 vendor-months, 28 incidents), so the classifier had not trained on those rows. Every result below comes from months 37 to 48 (3,600 vendor-months, 75 incidents, 300 vendors), which nothing was fitted or selected on.\nWe fixed the methods before looking at that window: an isotonic overlay (a monotone curve, interpolated between fitted points), and a Platt overlay (a logistic curve on the logit of the score) as secondary. Both come from probcal.1 The Brier score measures overall probability error, so it reflects more than calibration. The expected calibration error (ECE) is the weighted average gap between score and outcome across ten score groups; it depends on how groups are formed, so we show equal-size and equal-width groups. Uncertainty comes from resampling whole vendor histories (1,000 draws), because the same vendors recur every month. Intervals condition on the fitted overlay and leave out overlay-fitting uncertainty.",
-    "crumbs": [
-      "Calibration"
-    ]
-  },
-  {
-    "objectID": "calibration.html#findings",
-    "href": "calibration.html#findings",
-    "title": "Question 1: Are Its Probabilities Honest?",
-    "section": "Findings",
-    "text": "Findings\n\n\nShow the code\nrel2 &lt;- rel[rel$score %in% c(\"Raw VendorScore\", \"Isotonic overlay\"), ]\nrel2$score &lt;- factor(rel2$score, levels = c(\"Raw VendorScore\", \"Isotonic overlay\"))\nbrk &lt;- c(0, 0.01, 0.02, 0.05, 0.10)\nggplot(rel2, aes(predicted, observed)) +\n  geom_abline(slope = 1, intercept = 0, colour = \"grey50\") +\n  geom_linerange(aes(ymin = low, ymax = high, colour = score), alpha = 0.6) +\n  geom_point(aes(colour = score), size = 2.6) +\n  geom_point(aes(y = true_mean), shape = 5, colour = \"grey25\", size = 2.4) +\n  facet_wrap(~score) +\n  scale_x_sqrt(breaks = brk, labels = scales::label_percent(accuracy = 1), limits = c(0, 0.12)) +\n  scale_y_sqrt(breaks = brk, labels = scales::label_percent(accuracy = 1), limits = c(0, 0.12)) +\n  scale_colour_manual(values = unname(okabe_ito[c(\"vermillion\", \"blue\")]), guide = \"none\") +\n  labs(x = \"Average predicted probability (square-root scale)\",\n       y = \"Observed incident rate (square-root scale)\")\n\n\n\n\n\n\n\n\nFigure 1: Reliability diagram, months 37–48. Filled points: observed rate with vendor-clustered 95% intervals. Open diamonds: mean true probability in the group.\n\n\n\n\n\n\nHow to read the plot. Each dot groups vendor-months with similar scores: left to right is the prediction, bottom to top is what happened. A dot on the grey diagonal means the model was right on average. The vertical line is a plausible range; the open diamond is the true average risk, known only because the data are simulated.\nWhat the plot tells you. In the raw panel, the top group is the clearest miss. Only 75 incidents lie behind these dots, so single-group intervals are wide.\n\nThe raw top-scored group was told it faced 10.8%; 6.9% had an incident (interval 4.5% to 9.5%), and its true average risk was 5.2%. The observed rate exceeded the score in 8 of 10 groups, mostly low-scored ones. These intervals are pointwise, so they do not amount to a global test. The isotonic overlay collapses tied scores into 5 distinct groups, not ten.\n\n\nShow the code\ntab &lt;- data.frame(\n  Scores = c(\"Raw VendorScore\", \"Isotonic overlay\", \"Platt overlay (logit scale)\", \"Observed\"),\n  Brier = c(sprintf(\"%.5f\", pt[, \"brier\"]), \"—\"),\n  `Brier change vs raw` = c(\"—\", dif(\"Isotonic overlay\", \"brier\"),\n                            dif(\"Platt overlay (logit scale)\", \"brier\"), \"—\"),\n  `ECE, equal-size groups` = c(sprintf(\"%.4f\", pt[, \"ece_mass\"]), \"—\"),\n  `ECE, equal-width groups` = c(sprintf(\"%.4f\", pt[, \"ece_width\"]), \"—\"),\n  `Incidents per month` = c(sprintf(\"%.1f\", pt[, \"expected_per_month\"]),\n                            sprintf(\"%.1f\", cal$observed_per_month)),\n  check.names = FALSE)\nknitr::kable(tab, align = \"lrrrrr\")\n\n\n\n\nTable 1: Calibration metrics, months 37–48. Changes are versus raw scores, with vendor-clustered 95% intervals.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nScores\nBrier\nBrier change vs raw\nECE, equal-size groups\nECE, equal-width groups\nIncidents per month\n\n\n\n\nRaw VendorScore\n0.02107\n—\n0.0105\n0.0086\n5.7\n\n\nIsotonic overlay\n0.02081\n−0.00026 (−0.00064 to 0.00004)\n0.0068\n0.0066\n5.3\n\n\nPlatt overlay (logit scale)\n0.02025\n−0.00082 (−0.00196 to −0.00003)\n0.0052\n0.0052\n5.2\n\n\nObserved\n—\n—\n—\n—\n6.2\n\n\n\n\n\n\n\n\n\nHow to read the table. Each row is a version of the scores; the last row is the actual count. Smaller Brier and ECE are better. The “change” column shows how each overlay moves Brier versus raw scores, with a plausible range in brackets. The last column is the incidents per month the scores imply.\nWhat the table tells you. Both overlays lower Brier slightly, but the isotonic range includes zero and the Platt range only just excludes it. 3 of the 4 ECE changes have ranges that include zero. All three score versions imply fewer incidents (5.2 to 5.7 a month) than the 6.2 observed.\n\nOverlay gains are small and statistically unclear. The raw count of 5.7 incidents a month is closest to what was observed. The true probabilities imply only 5.1, so some shortfall is chance. Changing vendor mix, thin calibration data and a six-month fitting window may all contribute; this exercise does not isolate them.\n\n\nShow the code\nmov &lt;- cal$moves\nmov$path &lt;- factor(paste(mov$from, \"→\", mov$to),\n                   levels = unique(paste(mov$from, \"→\", mov$to)[order(mov$move != \"No change\", mov$from)]))\nggplot(mov, aes(path, Freq, fill = move)) +\n  geom_col(width = 0.65) +\n  geom_text(aes(label = Freq), vjust = -0.4, size = 3.8) +\n  scale_fill_manual(values = c(\"No change\" = unname(okabe_ito[\"grey\"]),\n                               \"Moves down\" = unname(okabe_ito[\"blue\"]),\n                               \"Moves up\" = unname(okabe_ito[\"vermillion\"]))) +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +\n  labs(x = \"Risk band under raw → overlay scores\", y = \"Number of vendors\", fill = NULL)\n\n\n\n\n\n\n\n\nFigure 2: Vendors by risk band, raw versus isotonic-overlay scores (Low &lt;1%, Medium 1–&lt;3%, High ≥3% monthly probability; illustrative). A retrospective illustration.\n\n\n\n\n\n\nHow to read the plot. Vendors are put in Low, Medium or High risk bands using their average score over months 37 to 48. These bands are separate from the criticality tiers of vendors. Each bar counts vendors by band before and after the overlay.\nWhat the plot tells you. 238 of 300 vendors keep their band and 62 move up; none move down. This shows the overlay’s decision impact, not that the new bands are right; averaging a whole window is a retrospective device, not a monitoring rule.",
-    "crumbs": [
-      "Calibration"
-    ]
-  },
-  {
-    "objectID": "calibration.html#so-what",
-    "href": "calibration.html#so-what",
-    "title": "Question 1: Are Its Probabilities Honest?",
-    "section": "So what",
-    "text": "So what\nThe vendor’s calibration claim does not hold cleanly: the highest-risk group is overstated and the overlay evidence is thin. Outcomes analysis (§V) can support an overlay (§VII), but does not make one acceptable by itself. This one has not shown fitness for the use: Brier gains are small, ECE changes are mostly indistinguishable from zero, and no operational acceptance threshold was set in advance, so we do not invent one. This is a corrected retrospective demonstration, not a prospective validation, and only partial validation: it cannot say why the scores are miscalibrated or whether the proprietary method is conceptually sound.\n\n\n\n\n\n\nNoteTechnical note: kernel calibration test (exploratory)\n\n\n\n\n\nThe kernel test in probcal::cal_test() on raw scores gives p = 0.023. It treats rows as independent although vendors recur monthly, so we do not rely on it.",
-    "crumbs": [
-      "Calibration"
-    ]
-  },
-  {
-    "objectID": "calibration.html#committee-action",
-    "href": "calibration.html#committee-action",
-    "title": "Question 1: Are Its Probabilities Honest?",
-    "section": "Committee action",
-    "text": "Committee action\nSound practice suggests not approving the tested overlay for routine use yet: investigate the shortfall, keep the existing process under documented controls, and validate any replacement on later outcomes against tolerances set in advance. Include a reliability diagram in every validation pack. The April 17, 2026 interagency Supervisory Guidance on Model Risk Management (Federal Reserve, FDIC, OCC) refers to the bank’s own established performance thresholds (§V).",
-    "crumbs": [
-      "Calibration"
-    ]
-  },
-  {
     "objectID": "calibration.html#footnotes",
     "href": "calibration.html#footnotes",
     "title": "Question 1: Are Its Probabilities Honest?",
