@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Patrick Lefler">
-<meta name="dcterms.date" content="2026-10-20">
+<meta name="dcterms.date" content="2026-10-22">
 
 <title>Trust, but Verify: Validating a Vendor Risk Model You Can’t See Inside – Three Questions for Any Risk Model</title>
 <style>
@@ -156,7 +156,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#the-three-questions" id="toc-the-three-questions" class="nav-link" data-scroll-target="#the-three-questions">The three questions</a></li>
   <li><a href="#the-case" id="toc-the-case" class="nav-link" data-scroll-target="#the-case">The case</a></li>
   <li><a href="#the-black-box-problem" id="toc-the-black-box-problem" class="nav-link" data-scroll-target="#the-black-box-problem">The black-box problem</a></li>
-  <li><a href="#how-to-read-this-series" id="toc-how-to-read-this-series" class="nav-link" data-scroll-target="#how-to-read-this-series">How to read this series</a></li>
+  <li><a href="#how-to-read-this-project" id="toc-how-to-read-this-project" class="nav-link" data-scroll-target="#how-to-read-this-project">How to read this project</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -183,7 +183,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 20, 2026</p>
+      <p class="date">October 22, 2026</p>
     </div>
   </div>
   
@@ -195,13 +195,13 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="the-decision-problem" class="level2">
-<h2 class="anchored" data-anchor-id="the-decision-problem">The decision problem</h2>
+<section id="the-decision-problem" class="level3">
+<h3 class="anchored" data-anchor-id="the-decision-problem">The decision problem</h3>
 <p>Your bank pays a vendor for a number. Every month, a model called VendorScore hands NorthPoint Bank a risk score for each of its 300 third-party vendors. Nobody at the bank can see the code, the training data, or the method. The scores arrive, and decisions follow.</p>
-<p>How do you validate something you cannot open? This series shows how much can be learned from the scores and what happens afterwards, and where outside testing stops.</p>
+<p>How do you validate something you cannot open? This project shows how much can be learned from the scores and what happens afterwards, and where outside testing stops.</p>
 </section>
-<section id="the-three-questions" class="level2">
-<h2 class="anchored" data-anchor-id="the-three-questions">The three questions</h2>
+<section id="the-three-questions" class="level3">
+<h3 class="anchored" data-anchor-id="the-three-questions">The three questions</h3>
 <p>The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) is explicitly non-prescriptive. We read it as describing sound practice, not rules. The three questions below are this project’s practical interpretation, not a regulator-prescribed checklist. Each works on any risk model.</p>
 <ol type="1">
 <li><strong>Are its probabilities honest?</strong> When the model says 10%, do incidents happen about 10% of the time? This is calibration, tested with <a href="https://cran.r-project.org/package=probcal"><code>probcal</code></a> (<a href="./calibration.html">Page 2</a>).</li>
@@ -242,19 +242,19 @@ Figure&nbsp;1: Each test is tied to a question and to the decision it protects.
 </div>
 </div>
 </section>
-<section id="the-case" class="level2">
-<h2 class="anchored" data-anchor-id="the-case">The case</h2>
+<section id="the-case" class="level3">
+<h3 class="anchored" data-anchor-id="the-case">The case</h3>
 <p>NorthPoint Bank is a fictional regional bank with about $45 billion in assets. The guidance is expected to be most relevant to banks above $30 billion; some smaller banks may also find it relevant. Asset managers and fintechs fall outside its scope but can adopt similar practices voluntarily.</p>
 <p>All four pages share one synthetic dataset: 14,400 vendor-months (300 vendors over 48 months, January 2022 to December 2025), with 209 observed incidents, or 1.45% of vendor-months. Because the data are simulated, we know each vendor-month’s true incident probability and use it only as a reference. The models under test never see it. Everything is reproducible from seed 34.</p>
 <p>A fictional vendor, RiskMetric Systems, supplies VendorScore, trained on months 1 to 30. NorthPoint fits a recalibration overlay on months 31 to 36 and assesses it on months 37 to 48 (Page 2). Page 3 compares the raw scores with a benchmark over months 31 to 48, a period that includes a deterioration in vendors’ patching speed after month 36.</p>
 </section>
-<section id="the-black-box-problem" class="level2">
-<h2 class="anchored" data-anchor-id="the-black-box-problem">The black-box problem</h2>
+<section id="the-black-box-problem" class="level3">
+<h3 class="anchored" data-anchor-id="the-black-box-problem">The black-box problem</h3>
 <p>Guidance on vendor products (§VII) recognises that a bank may lack access to a vendor model’s inner workings. The vendor’s summary offers only “ensemble machine learning on proprietary threat intelligence,” an AUC of 0.81 “on vendor development data,” and the assertion that scores are “well-calibrated.”</p>
 <p>The bank can evaluate how the scores perform on its own outcomes, for calibration and discrimination. It cannot reproduce the vendor’s development-data AUC or inspect the hidden development choices. Testing scores against outcomes is partial validation only: it cannot confirm that the proprietary model is conceptually sound. That depends on what the vendor discloses (§VII).</p>
 </section>
-<section id="how-to-read-this-series" class="level2">
-<h2 class="anchored" data-anchor-id="how-to-read-this-series">How to read this series</h2>
+<section id="how-to-read-this-project" class="level3">
+<h3 class="anchored" data-anchor-id="how-to-read-this-project">How to read this project</h3>
 <p>Pages 2 to 4 share one structure: the question, the method in brief, the findings, what they mean for the bank, and one committee action phrased as “sound practice suggests…”. The expected findings were written as hypotheses before any analysis ran; where a result differs, the text reports the result. Code is folded by default. Page 4 closes with a scorecard of measured results; a final page covers reproducibility and limits.</p>
 
 

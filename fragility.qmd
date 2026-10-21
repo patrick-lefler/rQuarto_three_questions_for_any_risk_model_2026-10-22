@@ -23,14 +23,14 @@ sgn <- function(x, d = 5) sub("^-", "−", formatC(x, digits = d, format = "f"))
 brier_chg <- cal$metrics["Isotonic overlay", "brier"] - cal$metrics["Raw VendorScore", "brier"]
 ```
 
-## The question
+### The question
 
 NorthPoint built its own logistic regression, the bank's incident-association model, from
 its panel. Its headline: vendors without a current SOC 2 Type II report have about twice
 the odds of an incident (odds ratio `r num(b$or)`, vendor-clustered 95% interval `r num(b$low)` to `r num(b$high)`). That finding
 now supports a contract policy. How small a change makes it disappear?
 
-## Method in brief
+### Method in brief
 
 **Pre-registered definition of a "kill":** the no-SOC-2 coefficient loses statistical
 significance at the 5% level using vendor-clustered standard errors (`sandwich::vcovCL`,
@@ -44,7 +44,7 @@ only; recorded lagged history is kept. Both are bounded searches, not proofs of 
 
 The `falsifyr` package supplies the refits and a supplementary within-model attack run.^[[`falsifyr`](https://cran.r-project.org/package=falsifyr) 1.0.0: `refit_model()` performs each specification refit; `attack()` (term `no_soc2`, intensity "normal", seed 34, kill rule p over alpha) ran 20 attacks: 19 survived, one unavailable. Its configured routine did not evaluate the added-control specification under our vendor-clustered inference rule, so we implemented that check separately.]
 
-## Findings
+### Findings
 
 ```{r}
 #| label: fig-speccurve
@@ -122,7 +122,7 @@ are descriptive and imprecise. Seed 34 was chosen during development because it 
 intended patterns so its p-values are not an
 unbiased experiment. The upward bias from omitting size is repeatable; the exact "2×" is not.
 
-## So what
+### So what?
 
 The "2× odds" headline reflects confounding in this simulator, not a robust effect of
 SOC 2: the size-adjusted estimate is `r num(ps$or)` (`r num(ps$low)` to `r num(ps$high)`), which is also compatible with a sizeable effect. The bank's own model
@@ -163,7 +163,7 @@ output without changing the model; limits on use restrict what a result may be u
 argues for scrapping VendorScore. The weakest item is the bank's own finding.
 :::
 
-## Committee action
+## Actionable Insights
 
 Sound practice suggests documenting the SOC 2 finding as an exception (§VI) and
 analysing its new use before relying on it (§IV). Do not use this association alone to infer the effect of requiring SOC 2: contract

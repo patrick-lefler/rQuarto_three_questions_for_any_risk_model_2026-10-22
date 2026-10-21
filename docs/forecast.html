@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Patrick Lefler">
-<meta name="dcterms.date" content="2026-10-20">
+<meta name="dcterms.date" content="2026-10-22">
 
 <title>Question 2: Does It Beat a Simple Model? – Three Questions for Any Risk Model</title>
 <style>
@@ -191,8 +191,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#the-question" id="toc-the-question" class="nav-link active" data-scroll-target="#the-question">The question</a></li>
   <li><a href="#method-in-brief" id="toc-method-in-brief" class="nav-link" data-scroll-target="#method-in-brief">Method in brief</a></li>
   <li><a href="#findings" id="toc-findings" class="nav-link" data-scroll-target="#findings">Findings</a></li>
-  <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So what</a></li>
-  <li><a href="#committee-action" id="toc-committee-action" class="nav-link" data-scroll-target="#committee-action">Committee action</a></li>
+  <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So What?</a></li>
+  <li><a href="#actionable-insights" id="toc-actionable-insights" class="nav-link" data-scroll-target="#actionable-insights">Actionable Insights</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/forecast.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -218,7 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 20, 2026</p>
+      <p class="date">October 22, 2026</p>
     </div>
   </div>
   
@@ -230,17 +230,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="the-question" class="level2">
-<h2 class="anchored" data-anchor-id="the-question">The question</h2>
+<section id="the-question" class="level3">
+<h3 class="anchored" data-anchor-id="the-question">The question</h3>
 <p>Does VendorScore forecast NorthPoint’s monthly incident total better than a plain 12-month rolling average of past counts, and does any advantage survive the deterioration in vendor patching after month 36? This tests one use of the model, aggregate monthly count forecasting. VendorScore may have other value, such as ranking vendors for attention, which this comparison does not price.</p>
 </section>
-<section id="method-in-brief" class="level2">
-<h2 class="anchored" data-anchor-id="method-in-brief">Method in brief</h2>
+<section id="method-in-brief" class="level3">
+<h3 class="anchored" data-anchor-id="method-in-brief">Method in brief</h3>
 <p>Each forecast is made at the start of month <em>t</em> for the incidents that will occur during that month. VendorScore’s forecast is the sum of its 300 vendor scores. The benchmark is the mean of actual counts in months <em>t</em> − 12 to <em>t</em> − 1. We assume each month’s patch latency and financial health are observed at the start of that month; if they were end-of-month measures, this would be a contemporaneous assessment, not a one-step-ahead forecast. We use raw scores over months 31 to 48, so no fitting touches the target months.</p>
 <p>We summarise accuracy with mean squared error (MSE, in squared incidents) and mean absolute error (MAE, in incidents). We test equal accuracy with the Diebold–Mariano test from <code>forecastdom</code>:<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> a positive statistic means lower squared loss for VendorScore. We run it over months 31 to 48 and over months 37 to 48. With 18 and 12 observations the test has low power, and a small-sample correction does not cure a deliberately shifting environment, where loss patterns may not be stable.</p>
 </section>
-<section id="findings" class="level2">
-<h2 class="anchored" data-anchor-id="findings">Findings</h2>
+<section id="findings" class="level3">
+<h3 class="anchored" data-anchor-id="findings">Findings</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -370,13 +370,13 @@ Table&nbsp;1: Forecast accuracy and Diebold–Mariano tests. Positive statistic:
 </div>
 <p>VendorScore’s MSE is 22% lower over the full window and 20% lower after the shift, while its MAE advantage nearly vanishes after the shift (2.03 versus 2.08). The vendor’s claimed AUC of 0.81 comes from its own development data. It cannot show whether VendorScore stays reliable at <em>this</em> bank once conditions change. Only the bank’s own ongoing monitoring can (§VII).</p>
 </section>
-<section id="so-what" class="level2">
-<h2 class="anchored" data-anchor-id="so-what">So what</h2>
+<section id="so-what" class="level3">
+<h3 class="anchored" data-anchor-id="so-what">So What?</h3>
 <p>On this evidence VendorScore gets the level of incidents closer than the simple benchmark does, but the advantage is statistically unproven and concentrated in a period when the benchmark lagged a rising trend. The comparison covers aggregate counts, not vendor rankings.</p>
 <p>The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) lists out-of-sample and out-of-time testing under model testing (§IV), and benchmarking and ongoing monitoring under validation (§V). The cumulative-differential chart fits there: a line a committee can watch. This is partial validation: it tests outputs, not the method.</p>
 </section>
-<section id="committee-action" class="level2">
-<h2 class="anchored" data-anchor-id="committee-action">Committee action</h2>
+<section id="actionable-insights" class="level3">
+<h3 class="anchored" data-anchor-id="actionable-insights">Actionable Insights</h3>
 <p>Sound practice suggests benchmarking every vendor model against a named simple alternative, out of sample and out of time, and adding the loss differential to ongoing monitoring so that deterioration triggers review.</p>
 
 

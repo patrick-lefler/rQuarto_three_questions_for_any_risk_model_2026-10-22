@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Patrick Lefler">
-<meta name="dcterms.date" content="2026-10-20">
+<meta name="dcterms.date" content="2026-10-22">
 
 <title>Question 3: Would Its Headline Finding Survive a Push? – Three Questions for Any Risk Model</title>
 <style>
@@ -191,8 +191,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#the-question" id="toc-the-question" class="nav-link active" data-scroll-target="#the-question">The question</a></li>
   <li><a href="#method-in-brief" id="toc-method-in-brief" class="nav-link" data-scroll-target="#method-in-brief">Method in brief</a></li>
   <li><a href="#findings" id="toc-findings" class="nav-link" data-scroll-target="#findings">Findings</a></li>
-  <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So what</a></li>
-  <li><a href="#committee-action" id="toc-committee-action" class="nav-link" data-scroll-target="#committee-action">Committee action</a></li>
+  <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So what?</a></li>
+  <li><a href="#actionable-insights" id="toc-actionable-insights" class="nav-link" data-scroll-target="#actionable-insights">Actionable Insights</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/blob/main/fragility.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li></ul></div></nav>
     </div>
@@ -218,7 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 20, 2026</p>
+      <p class="date">October 22, 2026</p>
     </div>
   </div>
   
@@ -230,18 +230,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="the-question" class="level2">
-<h2 class="anchored" data-anchor-id="the-question">The question</h2>
+<section id="the-question" class="level3">
+<h3 class="anchored" data-anchor-id="the-question">The question</h3>
 <p>NorthPoint built its own logistic regression, the bank’s incident-association model, from its panel. Its headline: vendors without a current SOC 2 Type II report have about twice the odds of an incident (odds ratio 2.04, vendor-clustered 95% interval 1.48 to 2.82). That finding now supports a contract policy. How small a change makes it disappear?</p>
 </section>
-<section id="method-in-brief" class="level2">
-<h2 class="anchored" data-anchor-id="method-in-brief">Method in brief</h2>
+<section id="method-in-brief" class="level3">
+<h3 class="anchored" data-anchor-id="method-in-brief">Method in brief</h3>
 <p><strong>Pre-registered definition of a “kill”:</strong> the no-SOC-2 coefficient loses statistical significance at the 5% level using vendor-clustered standard errors (<code>sandwich::vcovCL</code>, Wald z). Ordinary standard errors ignore within-vendor dependence and may overstate precision.</p>
 <p>A <em>specification curve</em> re-estimates the odds ratio across 16 logit models (so every estimate is an odds ratio): include or omit vendor size, prior incidents and financial health, with or without trimming the slowest 1% of patch latencies. A <em>greedy deletion search</em> then removes, one at a time, the incident rows that most support the estimate, from the analysis dataset only; recorded lagged history is kept. Both are bounded searches, not proofs of what is smallest.</p>
 <p>The <code>falsifyr</code> package supplies the refits and a supplementary within-model attack run.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
 </section>
-<section id="findings" class="level2">
-<h2 class="anchored" data-anchor-id="findings">Findings</h2>
+<section id="findings" class="level3">
+<h3 class="anchored" data-anchor-id="findings">Findings</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -308,8 +308,8 @@ Figure&nbsp;2: Greedy deletion search: clustered p-value as supportive incident 
 <p>The search found a successful perturbation, within its budget of 80 deletions, at 29 deleted rows: 0.20% of all 14,400 rows, 13.9% of all 209 incidents and 20.6% of the 141 eligible supportive incidents. A greedy search gives an upper bound on the smallest such change, and post-search p-values are diagnostics, not fresh tests. <code>falsifyr</code> found no kill in its run (verdict resilient), which is not proof of robustness.</p>
 <p><strong>Seed sensitivity.</strong> Each seed generates a different synthetic dataset, so this is a Monte Carlo repeatability check, not a perturbation of the bank’s data. We re-ran the generator for seeds 1 to 40, with the same clustered baseline. The omitted-size odds ratio ranged from 1.30 to 2.77 (median 2.01), significant in 38 of 40 runs. With size included it ranged from 0.84 to 1.78 (median 1.29), significant in 9. These counts are descriptive and imprecise. Seed 34 was chosen during development because it illustrates the intended patterns so its p-values are not an unbiased experiment. The upward bias from omitting size is repeatable; the exact “2×” is not.</p>
 </section>
-<section id="so-what" class="level2">
-<h2 class="anchored" data-anchor-id="so-what">So what</h2>
+<section id="so-what" class="level3">
+<h3 class="anchored" data-anchor-id="so-what">So what?</h3>
 <p>The “2× odds” headline reflects confounding in this simulator, not a robust effect of SOC 2: the size-adjusted estimate is 1.28 (0.90 to 1.82), which is also compatible with a sizeable effect. The bank’s own model was built to describe associations, then reused to support a contract policy. The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) flags use beyond a model’s intended purpose (§IV, Model Use), and describes effective challenge (§III) and testing with alternative assumptions (§IV). The challenge here was one added variable. This is partial validation too, and a robust association would still not be a causal effect.</p>
 <div class="cell">
 <details class="code-fold">
@@ -384,8 +384,8 @@ Table&nbsp;1: Series scorecard: measured results at NorthPoint, and responses in
 <p><strong>What the table tells you.</strong> None of the three tests found anything clean, and none, alone, argues for scrapping VendorScore. The weakest item is the bank’s own finding.</p>
 </div>
 </section>
-<section id="committee-action" class="level2">
-<h2 class="anchored" data-anchor-id="committee-action">Committee action</h2>
+<section id="actionable-insights" class="level2">
+<h2 class="anchored" data-anchor-id="actionable-insights">Actionable Insights</h2>
 <p>Sound practice suggests documenting the SOC 2 finding as an exception (§VI) and analysing its new use before relying on it (§IV). Do not use this association alone to infer the effect of requiring SOC 2: contract requirements need business, legal and control evidence. The guidance does not prescribe this.</p>
 
 

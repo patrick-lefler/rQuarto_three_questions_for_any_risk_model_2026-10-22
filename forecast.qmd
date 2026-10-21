@@ -18,7 +18,7 @@ cum_end <- tail(tst$cum_diff, 1)
 cum_shift <- tst$cum_diff[tst$month == 36]
 ```
 
-## The question
+### The question
 
 Does VendorScore forecast NorthPoint's monthly incident total better than a plain 12-month
 rolling average of past counts, and does any advantage survive the deterioration in vendor
@@ -26,7 +26,7 @@ patching after month 36? This tests one use of the model, aggregate monthly coun
 forecasting. VendorScore may have other value, such as ranking vendors for attention, which
 this comparison does not price.
 
-## Method in brief
+### Method in brief
 
 Each forecast is made at the start of month *t* for the incidents that will occur during
 that month. VendorScore's forecast is the sum of its 300 vendor scores. The benchmark is the
@@ -42,7 +42,7 @@ a positive statistic means lower squared loss for VendorScore. We run it over mo
 With 18 and 12 observations the test has low power, and a small-sample correction does not
 cure a deliberately shifting environment, where loss patterns may not be stable.
 
-## Findings
+### Findings
 
 ```{r}
 #| label: fig-forecast
@@ -126,7 +126,7 @@ The vendor's claimed AUC of 0.81 comes from its own development
 data. It cannot show whether VendorScore stays reliable at *this* bank once conditions
 change. Only the bank's own ongoing monitoring can (§VII).
 
-## So what
+### So What?
 
 On this evidence VendorScore gets the level of incidents closer than the simple benchmark
 does, but the advantage is statistically unproven and concentrated in a period when the
@@ -137,7 +137,7 @@ The April 17, 2026 interagency [*Supervisory Guidance on Model Risk Management*]
 ongoing monitoring under validation (§V). The cumulative-differential
 chart fits there: a line a committee can watch. This is partial validation: it tests outputs, not the method.
 
-## Committee action
+### Actionable Insights
 
 Sound practice suggests benchmarking every vendor model against a named simple
 alternative, out of sample and out of time, and adding the loss differential to ongoing
