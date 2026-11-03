@@ -18,11 +18,11 @@ website:
       - href: index.qmd
         text: Overview
       - href: calibration.qmd
-        text: Calibration
+        text: "Calibration: Question 1"
       - href: forecast.qmd
-        text: Forecast
+        text: "Forecast: Question 2"
       - href: fragility.qmd
-        text: Fragility
+        text: "Fragility: Question 3"
       - href: reproducibility.qmd
         text: Reproducibility
   page-footer:
