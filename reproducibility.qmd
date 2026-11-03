@@ -14,6 +14,8 @@ md5s <- function(f) substr(ck$md5[ck$file == f], 1, 8)
 pp <- function(...) par_get(...)
 ```
 
+
+
 ## Run it
 
 One command rebuilds everything from seed `r pp("seed")`: the simulation, models, analyses, tests and this site.
@@ -26,6 +28,8 @@ The last run passed `r sum(tr$checks_passed)` checks (`r tr$checks_passed[tr$sui
 are locked in `renv.lock` (R `r lock$R$Version`; `probcal` `r ver("probcal")`, `forecastdom` `r ver("forecastdom")`, `falsifyr` `r ver("falsifyr")`).
 The generator file's checksum is `r md5s("R/simulate.R")`; any edit changes it. Result checksums and the full
 session record are in the [source repository](https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22/tree/main/data).
+
+
 
 ## What is fixed
 
@@ -56,6 +60,8 @@ the synthetic data.
 bands or deletion budget would change the reported numbers, so each is recorded in one place.
 :::
 
+
+
 ## Limitations
 
 - **Synthetic data.** Confounding, regime shift and overconfidence are planted. Real use needs NorthPoint's vendor-month panel, incident definition and dated SOC 2 reports.
@@ -64,3 +70,13 @@ bands or deletion budget would change the reported numbers, so each is recorded 
 - **Information timing.** Start-of-month availability of patch latency and financial health is assumed; real feeds need timestamps.
 - **One dataset.** Seed 34 was chosen in development; the seed sweep on page 4 checks repeatability only.
 - **Partial validation.** Scores and outcomes only; the vendor's internals stay unseen.
+
+
+## Session Information
+
+```{r}
+#| echo: false
+
+sessioninfo::session_info()
+
+```

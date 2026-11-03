@@ -104,7 +104,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./fragility.html">Fragility</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./fragility.html">Fragility: Question 3</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -130,19 +130,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./calibration.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Calibration</span></a>
+ <span class="menu-text">Calibration: Question 1</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./forecast.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Forecast</span></a>
+ <span class="menu-text">Forecast: Question 2</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./fragility.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Fragility</span></a>
+ <span class="menu-text">Fragility: Question 3</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -203,18 +203,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="the-question" class="level3">
-<h3 class="anchored" data-anchor-id="the-question">The question</h3>
+<section id="the-question" class="level2">
+<h2 class="anchored" data-anchor-id="the-question">The question</h2>
 <p>NorthPoint built its own logistic regression, the bank’s incident-association model, from its panel. Its headline: vendors without a current SOC 2 Type II report have about twice the odds of an incident (odds ratio 2.04, vendor-clustered 95% interval 1.48 to 2.82). That finding now supports a contract policy. How small a change makes it disappear?</p>
 </section>
-<section id="method-in-brief" class="level3">
-<h3 class="anchored" data-anchor-id="method-in-brief">Method in brief</h3>
+<section id="method-in-brief" class="level2">
+<h2 class="anchored" data-anchor-id="method-in-brief">Method in brief</h2>
 <p><strong>Pre-registered definition of a “kill”:</strong> the no-SOC-2 coefficient loses statistical significance at the 5% level using vendor-clustered standard errors (<code>sandwich::vcovCL</code>, Wald z). Ordinary standard errors ignore within-vendor dependence and may overstate precision.</p>
 <p>A <em>specification curve</em> re-estimates the odds ratio across 16 logit models (so every estimate is an odds ratio): include or omit vendor size, prior incidents and financial health, with or without trimming the slowest 1% of patch latencies. A <em>greedy deletion search</em> then removes, one at a time, the incident rows that most support the estimate, from the analysis dataset only; recorded lagged history is kept. Both are bounded searches, not proofs of what is smallest.</p>
 <p>The <code>falsifyr</code> package supplies the refits and a supplementary within-model attack run.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
 </section>
-<section id="findings" class="level3">
-<h3 class="anchored" data-anchor-id="findings">Findings</h3>
+<section id="findings" class="level2">
+<h2 class="anchored" data-anchor-id="findings">Findings</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -281,8 +281,8 @@ Figure&nbsp;2: Greedy deletion search: clustered p-value as supportive incident 
 <p>The search found a successful perturbation, within its budget of 80 deletions, at 29 deleted rows: 0.20% of all 14,400 rows, 13.9% of all 209 incidents and 20.6% of the 141 eligible supportive incidents. A greedy search gives an upper bound on the smallest such change, and post-search p-values are diagnostics, not fresh tests. <code>falsifyr</code> found no kill in its run (verdict resilient), which is not proof of robustness.</p>
 <p><strong>Seed sensitivity.</strong> Each seed generates a different synthetic dataset, so this is a Monte Carlo repeatability check, not a perturbation of the bank’s data. We re-ran the generator for seeds 1 to 40, with the same clustered baseline. The omitted-size odds ratio ranged from 1.30 to 2.77 (median 2.01), significant in 38 of 40 runs. With size included it ranged from 0.84 to 1.78 (median 1.29), significant in 9. These counts are descriptive and imprecise. Seed 34 was chosen during development because it illustrates the intended patterns so its p-values are not an unbiased experiment. The upward bias from omitting size is repeatable; the exact “2×” is not.</p>
 </section>
-<section id="so-what" class="level3">
-<h3 class="anchored" data-anchor-id="so-what">So what?</h3>
+<section id="so-what" class="level2">
+<h2 class="anchored" data-anchor-id="so-what">So what?</h2>
 <p>The “2× odds” headline reflects confounding in this simulator, not a robust effect of SOC 2: the size-adjusted estimate is 1.28 (0.90 to 1.82), which is also compatible with a sizeable effect. The bank’s own model was built to describe associations, then reused to support a contract policy. The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) flags use beyond a model’s intended purpose (§IV, Model Use), and describes effective challenge (§III) and testing with alternative assumptions (§IV). The challenge here was one added variable. This is partial validation too; even a robust association would not be causal.</p>
 <div class="cell">
 <details class="code-fold">
@@ -773,8 +773,8 @@ Table&nbsp;1: Series scorecard: measured results at NorthPoint, and responses in
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./forecast.html" class="pagination-link" aria-label="Forecast">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Forecast</span>
+      <a href="./forecast.html" class="pagination-link" aria-label="Forecast: Question 2">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Forecast: Question 2</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">

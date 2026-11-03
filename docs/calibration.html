@@ -104,7 +104,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./calibration.html">Calibration</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./calibration.html">Calibration: Question 1</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -130,19 +130,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./calibration.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Calibration</span></a>
+ <span class="menu-text">Calibration: Question 1</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./forecast.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Forecast</span></a>
+ <span class="menu-text">Forecast: Question 2</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./fragility.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Fragility</span></a>
+ <span class="menu-text">Fragility: Question 3</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -164,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#the-question" id="toc-the-question" class="nav-link active" data-scroll-target="#the-question">The question</a></li>
   <li><a href="#method-in-brief" id="toc-method-in-brief" class="nav-link" data-scroll-target="#method-in-brief">Method in brief</a></li>
   <li><a href="#findings" id="toc-findings" class="nav-link" data-scroll-target="#findings">Findings</a></li>
-  <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So what</a></li>
+  <li><a href="#so-what" id="toc-so-what" class="nav-link" data-scroll-target="#so-what">So what?</a></li>
   <li><a href="#actionable-insights" id="toc-actionable-insights" class="nav-link" data-scroll-target="#actionable-insights">Actionable Insights</a></li>
   </ul>
 </nav>
@@ -203,17 +203,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="the-question" class="level3">
-<h3 class="anchored" data-anchor-id="the-question">The question</h3>
+<section id="the-question" class="level2">
+<h2 class="anchored" data-anchor-id="the-question">The question</h2>
 <p>When VendorScore says a vendor has a 10% chance of an incident, do incidents happen about 10% of the time? RiskMetric Systems asserts that its scores are “well-calibrated.” NorthPoint cannot inspect the model, but it can compare the scores with what happened, and it can test whether a recalibration overlay would help.</p>
 </section>
-<section id="method-in-brief" class="level3">
-<h3 class="anchored" data-anchor-id="method-in-brief">Method in brief</h3>
+<section id="method-in-brief" class="level2">
+<h2 class="anchored" data-anchor-id="method-in-brief">Method in brief</h2>
 <p>VendorScore trained on months 1 to 30 (the vendor’s business). We fitted the overlay on months 31 to 36 (1,800 vendor-months, 28 incidents), so the classifier had not trained on those rows. Every result below comes from months 37 to 48 (3,600 vendor-months, 75 incidents, 300 vendors), which nothing was fitted or selected on.</p>
 <p>We fixed the methods before looking at that window: an isotonic overlay (a monotone curve, interpolated between fitted points), and a Platt overlay (a logistic curve on the logit of the score) as secondary. Both come from <code>probcal</code>.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> The Brier score measures overall probability error, so it reflects more than calibration. The expected calibration error (ECE) is the weighted average gap between score and outcome across ten score groups; it depends on how groups are formed, so we show equal-size and equal-width groups. Uncertainty comes from resampling whole vendor histories (1,000 draws), because the same vendors recur every month. Intervals condition on the fitted overlay and leave out overlay-fitting uncertainty.</p>
 </section>
-<section id="findings" class="level3">
-<h3 class="anchored" data-anchor-id="findings">Findings</h3>
+<section id="findings" class="level2">
+<h2 class="anchored" data-anchor-id="findings">Findings</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the code</summary>
@@ -369,28 +369,25 @@ Figure&nbsp;2: Vendors by risk band, raw versus isotonic-overlay scores (Low &lt
 <p><strong>What the plot tells you.</strong> 238 of 300 vendors keep their band and 62 move up; none move down. This shows the overlay’s decision impact, not that the new bands are right; averaging a whole window is a retrospective device, not a monitoring rule.</p>
 </div>
 </section>
-<section id="so-what" class="level3">
-<h3 class="anchored" data-anchor-id="so-what">So what</h3>
+<section id="so-what" class="level2">
+<h2 class="anchored" data-anchor-id="so-what">So what?</h2>
 <p>The vendor’s calibration claim does not hold cleanly: the highest-risk group is overstated and the overlay evidence is thin. Outcomes analysis (§V) can support an overlay (§VII), but does not make one acceptable by itself. This one has not shown fitness for the use: Brier gains are small, ECE changes are mostly indistinguishable from zero, and no operational acceptance threshold was set in advance, so we do not invent one. This is a corrected retrospective demonstration, not a prospective validation, and only partial validation: it cannot say why the scores are miscalibrated or whether the proprietary method is conceptually sound.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 <span class="screen-reader-only">Note</span>Technical note: kernel calibration test (exploratory)
 </div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The kernel test in <code>probcal::cal_test()</code> on raw scores gives p = 0.023. It treats rows as independent although vendors recur monthly, so we do not rely on it.</p>
 </div>
 </div>
-</div>
 </section>
-<section id="actionable-insights" class="level3">
-<h3 class="anchored" data-anchor-id="actionable-insights">Actionable Insights</h3>
+<section id="actionable-insights" class="level2">
+<h2 class="anchored" data-anchor-id="actionable-insights">Actionable Insights</h2>
 <p>Sound practice suggests not approving the tested overlay for routine use yet: investigate the shortfall, keep the existing process under documented controls, and validate any replacement on later outcomes against tolerances set in advance. Include a reliability diagram in every validation pack. The April 17, 2026 interagency <a href="https://www.occ.gov/news-issuances/bulletins/2026/bulletin-2026-13a.pdf"><em>Supervisory Guidance on Model Risk Management</em></a> (Federal Reserve, FDIC, OCC) refers to the bank’s own established performance thresholds (§V).</p>
 
 
@@ -810,8 +807,8 @@ Figure&nbsp;2: Vendors by risk band, raw versus isotonic-overlay scores (Low &lt
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./forecast.html" class="pagination-link" aria-label="Forecast">
-        <span class="nav-page-text">Forecast</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./forecast.html" class="pagination-link" aria-label="Forecast: Question 2">
+        <span class="nav-page-text">Forecast: Question 2</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

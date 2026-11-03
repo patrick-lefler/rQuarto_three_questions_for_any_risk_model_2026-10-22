@@ -129,19 +129,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./calibration.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Calibration</span></a>
+ <span class="menu-text">Calibration: Question 1</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./forecast.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Forecast</span></a>
+ <span class="menu-text">Forecast: Question 2</span></a>
   </div>
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./fragility.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Fragility</span></a>
+ <span class="menu-text">Fragility: Question 3</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -163,6 +163,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#run-it" id="toc-run-it" class="nav-link active" data-scroll-target="#run-it">Run it</a></li>
   <li><a href="#what-is-fixed" id="toc-what-is-fixed" class="nav-link" data-scroll-target="#what-is-fixed">What is fixed</a></li>
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
+  <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information">Session Information</a></li>
   </ul>
 </nav>
     </div>
@@ -307,6 +308,65 @@ Table&nbsp;1: Main analysis settings and their basis. The full register, with se
 <li><strong>One dataset.</strong> Seed 34 was chosen in development; the seed sweep on page 4 checks repeatability only.</li>
 <li><strong>Partial validation.</strong> Scores and outcomes only; the vendor’s internals stay unseen.</li>
 </ul>
+</section>
+<section id="session-information" class="level2">
+<h2 class="anchored" data-anchor-id="session-information">Session Information</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>─ Session info ───────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.5.2 (2025-10-31)
+ os       macOS Tahoe 26.6.2
+ system   aarch64, darwin20
+ ui       X11
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/New_York
+ date     2026-11-02
+ pandoc   3.10 @ /Applications/Positron.app/Contents/Resources/app/quarto/bin/tools/aarch64/ (via rmarkdown)
+ quarto   1.8.26 @ /Applications/quarto/bin/quarto
+
+─ Packages ───────────────────────────────────────────────────────────────────
+ package      * version date (UTC) lib source
+ cli            3.6.6   2026-04-09 [1] CRAN (R 4.5.2)
+ digest         0.6.39  2025-11-19 [1] CRAN (R 4.5.2)
+ dplyr          1.2.1   2026-04-03 [1] CRAN (R 4.5.2)
+ evaluate       1.0.5   2025-08-27 [1] CRAN (R 4.5.0)
+ farver         2.1.2   2024-05-13 [1] CRAN (R 4.5.0)
+ fastmap        1.2.0   2024-05-15 [1] CRAN (R 4.5.0)
+ generics       0.1.4   2025-05-09 [1] CRAN (R 4.5.0)
+ ggplot2      * 4.0.3   2026-04-22 [1] CRAN (R 4.5.2)
+ glue           1.8.1   2026-04-17 [1] CRAN (R 4.5.2)
+ gtable         0.3.6   2024-10-25 [1] CRAN (R 4.5.0)
+ htmltools      0.5.9   2025-12-04 [1] CRAN (R 4.5.2)
+ htmlwidgets    1.6.4   2023-12-06 [1] CRAN (R 4.5.0)
+ jsonlite       2.0.0   2025-03-27 [1] CRAN (R 4.5.0)
+ knitr          1.50    2025-03-16 [1] CRAN (R 4.5.0)
+ lifecycle      1.0.5   2026-01-08 [1] CRAN (R 4.5.2)
+ magrittr       2.0.5   2026-04-04 [1] CRAN (R 4.5.2)
+ pillar         1.11.1  2025-09-17 [1] CRAN (R 4.5.0)
+ pkgconfig      2.0.3   2019-09-22 [1] CRAN (R 4.5.0)
+ R6             2.6.1   2025-02-15 [1] CRAN (R 4.5.0)
+ RColorBrewer   1.1-3   2022-04-03 [1] CRAN (R 4.5.0)
+ rlang          1.3.0   2026-07-05 [1] CRAN (R 4.5.2)
+ rmarkdown      2.30    2025-09-28 [1] CRAN (R 4.5.0)
+ S7             0.2.2   2026-04-22 [1] CRAN (R 4.5.2)
+ scales         1.4.0   2025-04-24 [1] CRAN (R 4.5.0)
+ sessioninfo    1.2.3   2025-02-05 [1] CRAN (R 4.5.0)
+ tibble         3.3.1   2026-01-11 [1] CRAN (R 4.5.2)
+ tidyselect     1.2.1   2024-03-11 [1] CRAN (R 4.5.0)
+ vctrs          0.7.3   2026-04-11 [1] CRAN (R 4.5.2)
+ withr          3.0.3   2026-06-19 [1] CRAN (R 4.5.2)
+ xfun           0.54    2025-10-30 [1] CRAN (R 4.5.0)
+ yaml           2.3.10  2024-07-26 [1] CRAN (R 4.5.0)
+
+ [1] /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/library
+ * ── Packages attached to the search path.
+
+──────────────────────────────────────────────────────────────────────────────</code></pre>
+</div>
+</div>
 
 
 </section>
@@ -714,8 +774,8 @@ Table&nbsp;1: Main analysis settings and their basis. The full register, with se
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./fragility.html" class="pagination-link" aria-label="Fragility">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Fragility</span>
+      <a href="./fragility.html" class="pagination-link" aria-label="Fragility: Question 3">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Fragility: Question 3</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
