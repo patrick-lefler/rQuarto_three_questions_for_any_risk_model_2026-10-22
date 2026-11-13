@@ -74,9 +74,11 @@ bands or deletion budget would change the reported numbers, so each is recorded 
 
 ## Session Information
 
+::: {.callout-note icon = false collapse="true"}
+## Full R session information
 ```{r}
+#| label: session-information
 #| echo: false
-
-sessioninfo::session_info()
-
+utils::sessionInfo()
 ```
+:::
