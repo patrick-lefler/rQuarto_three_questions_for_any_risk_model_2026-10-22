@@ -79,6 +79,6 @@ bands or deletion budget would change the reported numbers, so each is recorded 
 ```{r}
 #| label: session-information
 #| echo: false
-utils::sessionInfo()
+sessioninfo::session_info()
 ```
 :::
