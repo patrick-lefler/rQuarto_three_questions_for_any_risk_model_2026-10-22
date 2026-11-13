@@ -64,3 +64,14 @@ bands or deletion budget would change the reported numbers, so each is recorded 
 - **Information timing.** Start-of-month availability of patch latency and financial health is assumed; real feeds need timestamps.
 - **One dataset.** Seed 34 was chosen in development; the seed sweep on page 4 checks repeatability only.
 - **Partial validation.** Scores and outcomes only; the vendor's internals stay unseen.
+
+## Session Information
+
+::: {.callout-note icon = false collapse="true"}
+## Full R session information
+```{r}
+#| label: session-information
+#| echo: false
+utils::sessionInfo()
+```
+:::

@@ -164,7 +164,7 @@ advance, so we do not invent one. This is a corrected retrospective demonstratio
 prospective validation, and only partial validation: it cannot say why the scores are
 miscalibrated or whether the proprietary method is conceptually sound.
 
-::: {.callout-note collapse="true"}
+::: {.callout-note icon = false collapse="true"}
 ## Technical note: kernel calibration test (exploratory)
 
 The kernel test in `probcal::cal_test()` on raw scores gives p = `r pval(cal$claim_test$p.value)`. It treats

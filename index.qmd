@@ -2,6 +2,10 @@
 title: "Three Questions for Any Risk Model"
 subtitle: "Trust, but Verify: Validating a Vendor Risk Model You Can't See Inside. A synthetic case study."
 pagetitle: "Trust, but Verify: Validating a Vendor Risk Model You Can't See Inside"
+
+author: "Patrick Lefler"
+date: October 22, 2026
+date-format: "MMMM D, YYYY"
 ---
 
 ```{r}
