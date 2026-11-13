@@ -33,10 +33,6 @@ website:
       - text: "Source code"
         href: https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22
 
-author: "Patrick Lefler"
-date: October 22, 2026
-date-format: "MMMM D, YYYY"
-
 format:
   html:
     theme: [cosmo, theme.scss]
