@@ -27,7 +27,7 @@ website:
       - href: reproducibility.qmd
         text: Reproducibility
   page-footer:
-    center: "© 2026 Patrick Lefler ⦁ [MIT License](license.qmd) ⦁ Built with Quarto"
+    center: "© 2026 Patrick Lefler ⦁ [MIT License](license.qmd) ⦁ Built with R & Quarto"
     
   
 format:
