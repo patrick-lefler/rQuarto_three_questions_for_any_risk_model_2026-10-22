@@ -1,5 +1,6 @@
 ---
 title: "Question 1: Are Its Probabilities Honest?"
+subtitle: "Checking what VendorScore predicted against what actually happened, and whether a recalibration overlay closes the gap"
 ---
 
 ```{r}

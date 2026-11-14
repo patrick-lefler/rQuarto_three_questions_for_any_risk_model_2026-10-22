@@ -7,6 +7,7 @@ project:
     - forecast.qmd
     - fragility.qmd
     - reproducibility.qmd
+    - license.qmd
 
 website:
   title: "Three Questions for Any Risk Model"
@@ -26,23 +27,18 @@ website:
       - href: reproducibility.qmd
         text: Reproducibility
   page-footer:
-    left: "Synthetic case study: all data are simulated."
-    right:
-      - text: "Seeking Eureka projects"
-        href: https://seeking-eureka.com/projects.html
-      - text: "Source code"
-        href: https://github.com/patrick-lefler/rQuarto_three_questions_for_any_risk_model_2026-10-22
-
+    center: "© 2026 Patrick Lefler ⦁ [MIT License](license.qmd) ⦁ Built with Quarto"
+    
+  
 format:
   html:
     theme: [cosmo, theme.scss]
     toc: true
+    code-fold: true
+    code-summary: "Show the code"
 
 execute:
   echo: true
   freeze: auto
   warning: false
   message: false
-
-code-fold: true
-code-summary: "Show the code"

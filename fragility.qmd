@@ -1,5 +1,6 @@
 ---
 title: "Question 3: Would Its Headline Finding Survive a Push?"
+subtitle: "How one modelling choice, vendor size, decides whether the SOC 2 finding holds"
 ---
 
 ```{r}
