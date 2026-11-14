@@ -1,5 +1,6 @@
 ---
 title: "Reproducibility and Limits"
+subtitle: "One command rebuilds every result, and these are the limits on what the results can show"
 ---
 
 ```{r}

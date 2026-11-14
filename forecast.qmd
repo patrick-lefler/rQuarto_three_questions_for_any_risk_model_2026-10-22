@@ -1,5 +1,6 @@
 ---
 title: "Question 2: Does It Beat a Simple Model?"
+subtitle: "Testing VendorScore against a 12-month average, before and after vendor patching slips"
 ---
 
 ```{r}
