@@ -73,9 +73,11 @@ bands or deletion budget would change the reported numbers, so each is recorded 
 - **Partial validation.** Scores and outcomes only; the vendor's internals stay unseen.
 
 
-## Session Information
+## Software environment {#environment}
 
-::: {.callout-note icon = false collapse="true"}
+The site was built with R and Quarto. The pages load `ggplot2` and call `knitr`, `jsonlite`, `scales`, `yaml` and `sessioninfo`. The analysis scripts also use `probcal`, `forecastdom`, `falsifyr`, `sandwich`, `xgboost` and `arrow`, and the tests use `testthat`, `xml2` and `chromote`. Package versions are pinned in `renv.lock`; run `renv::restore()` to install them.
+
+::: {.callout-note icon=false collapse="true"}
 ## Full R session information
 ```{r}
 #| label: session-information

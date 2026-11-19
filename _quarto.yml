@@ -11,9 +11,12 @@ project:
 
 website:
   title: "Three Questions for Any Risk Model"
+  favicon: assets/images/favicon.svg
   search: false
   page-navigation: true
   sidebar:
+    logo: assets/images/logo.svg
+    logo-alt: "Seeking Eureka"
     style: floating
     contents:
       - href: index.qmd
