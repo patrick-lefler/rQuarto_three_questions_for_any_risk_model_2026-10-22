@@ -61,6 +61,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <link href="./fragility.html" rel="prev">
+<link href="./assets/images/favicon.svg" rel="icon" type="image/svg+xml">
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -72,7 +73,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-27a998fbd444cbea4325d855b637c53e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-e17081086ff2b44b277c80779499dc85.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "language": {
     "search-no-results-text": "No results",
@@ -112,9 +113,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
-    <div class="sidebar-title mb-0 py-0">
-      <a href="./">Three Questions for Any Risk Model</a> 
-    </div>
+      <a href="./index.html" class="sidebar-logo-link">
+      <img src="./assets/images/logo.svg" alt="Seeking Eureka" class="sidebar-logo light-content py-0 d-lg-inline d-none">
+      <img src="./assets/images/logo.svg" alt="Seeking Eureka" class="sidebar-logo dark-content py-0 d-lg-inline d-none">
+      </a>
       </div>
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
@@ -161,7 +163,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#run-it" id="toc-run-it" class="nav-link active" data-scroll-target="#run-it">Run it</a></li>
   <li><a href="#what-is-fixed" id="toc-what-is-fixed" class="nav-link" data-scroll-target="#what-is-fixed">What is fixed</a></li>
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
-  <li><a href="#session-information" id="toc-session-information" class="nav-link" data-scroll-target="#session-information">Session Information</a></li>
+  <li><a href="#environment" id="toc-environment" class="nav-link" data-scroll-target="#environment">Software environment</a></li>
   </ul>
 </nav>
     </div>
@@ -296,8 +298,9 @@ Table&nbsp;1: Main analysis settings and their basis. The full register, with se
 <li><strong>Partial validation.</strong> Scores and outcomes only; the vendor’s internals stay unseen.</li>
 </ul>
 </section>
-<section id="session-information" class="level2">
-<h2 class="anchored" data-anchor-id="session-information">Session Information</h2>
+<section id="environment" class="level2">
+<h2 class="anchored" data-anchor-id="environment">Software environment</h2>
+<p>The site was built with R and Quarto. The pages load <code>ggplot2</code> and call <code>knitr</code>, <code>jsonlite</code>, <code>scales</code>, <code>yaml</code> and <code>sessioninfo</code>. The analysis scripts also use <code>probcal</code>, <code>forecastdom</code>, <code>falsifyr</code>, <code>sandwich</code>, <code>xgboost</code> and <code>arrow</code>, and the tests use <code>testthat</code>, <code>xml2</code> and <code>chromote</code>. Package versions are pinned in <code>renv.lock</code>; run <code>renv::restore()</code> to install them.</p>
 <div class="callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -319,12 +322,12 @@ Table&nbsp;1: Main analysis settings and their basis. The full register, with se
  system   aarch64, darwin20
  ui       X11
  language (EN)
- collate  en_US.UTF-8
- ctype    en_US.UTF-8
+ collate  C.UTF-8
+ ctype    C.UTF-8
  tz       America/New_York
- date     2026-11-16
- pandoc   3.10 @ /Applications/Positron.app/Contents/Resources/app/quarto/bin/tools/aarch64/ (via rmarkdown)
- quarto   1.8.26 @ /Applications/quarto/bin/quarto
+ date     2026-11-19
+ pandoc   3.6.3 @ /Applications/quarto/bin/tools/ (via rmarkdown)
+ quarto   1.8.26 @ /usr/local/bin/quarto
 
 ─ Packages ───────────────────────────────────────────────────────────────────
  package      * version date (UTC) lib source
