@@ -11,6 +11,9 @@ library(xml2)
 # key to the guidance's section marks on the Overview page.
 CEILING <- 4100; TARGET <- c(3500, 3750)
 pages <- c("index", "calibration", "forecast", "fragility", "reproducibility")
+# The Reproducibility page is reference material in the standard template; the owner excluded it
+# from the ceiling (2026-11-20). Its count is still reported.
+EXCLUDED <- "reproducibility"
 
 count_page <- function(p) {
   doc <- read_html(file.path("docs", paste0(p, ".html")))
@@ -24,7 +27,8 @@ count_page <- function(p) {
 counts <- vapply(pages, count_page, integer(1))
 tab <- data.frame(page = paste0(pages, ".qmd"), words = counts, row.names = NULL)
 print(tab)
-total <- sum(counts)
-cat(sprintf("Total: %d (target %d-%d, ceiling %d)\n", total, TARGET[1], TARGET[2], CEILING))
+total <- sum(counts[!pages %in% EXCLUDED])
+cat(sprintf("Total excluding %s: %d (target %d-%d, ceiling %d)\n",
+            paste0(EXCLUDED, ".qmd", collapse = ", "), total, TARGET[1], TARGET[2], CEILING))
 write.csv(rbind(tab, data.frame(page = "total", words = total)), "data/word_count.csv", row.names = FALSE)
 if (total > CEILING) quit(status = 1)
