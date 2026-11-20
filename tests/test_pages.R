@@ -52,7 +52,7 @@ test_that("rendered pages have no literal NA cells, drafting headings or raw foo
 })
 
 test_that("every table and figure has two reader notes", {
-  for (p in pages) {
+  for (p in setdiff(pages, "reproducibility.qmd")) {
     x <- paste(readLines(p, warn = FALSE), collapse = "\n")
     n_obj <- lengths(regmatches(x, gregexpr("label: (fig|tbl)-|\\{#fig-", x)))
     n_note <- lengths(regmatches(x, gregexpr("\\{\\.reader-note\\}", x)))
@@ -60,6 +60,12 @@ test_that("every table and figure has two reader notes", {
     expect_equal(lengths(regmatches(x, gregexpr("\\*\\*How to read the", x))), n_obj, info = p)
     expect_equal(lengths(regmatches(x, gregexpr("\\*\\*What the (plot|table) tells you", x))), n_obj, info = p)
   }
+  # The Reproducibility page follows the standard template: unlabelled kable tables, with
+  # reader notes as bold lines rather than .reader-note divs.
+  x <- paste(readLines("reproducibility.qmd", warn = FALSE), collapse = "\n")
+  n_tbl <- lengths(regmatches(x, gregexpr("knitr::kable\\(", x)))
+  expect_equal(lengths(regmatches(x, gregexpr("\\*\\*How to read the table\\*\\*", x))), n_tbl)
+  expect_equal(lengths(regmatches(x, gregexpr("\\*\\*What the table tells you\\*\\*", x))), n_tbl)
 })
 
 test_that("committee actions use 'sound practice suggests'", {
@@ -74,6 +80,6 @@ test_that("params.yaml drives the scripts and the Reproducibility page", {
   expect_equal(WINDOWS$overlay_eval, par_get("windows", "overlay_eval")[1]:par_get("windows", "overlay_eval")[2])
   expect_equal(par_get("seed"), 34)
   repro <- paste(readLines("reproducibility.qmd", warn = FALSE), collapse = "\n")
-  expect_match(repro, "params.yaml"); expect_match(repro, "Limitations")
+  expect_match(repro, "params.yaml"); expect_match(repro, "Known limitations \\{#limitations\\}")
   expect_true(all(file.exists(c("params.yaml", "data/test_results.csv"))))
 })
